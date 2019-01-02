@@ -13,13 +13,12 @@ import { OverviewComponent } from './components/overview/overview.component';
 import { NewIncomingCallDialogComponent } from './dialog-components/new-incoming-call-dialog/new-incoming-call-dialog.component';
 import { FormsModule } from '@angular/forms';
 import { HttpClientModule } from '@angular/common/http';
-import { CallResourcesService } from './backend-services/call-resources.service';
 
-function getBaseUrl() {
+export function getBaseUrl() {
   return document.getElementsByTagName('base')[0].href;
 }
 
-function getBackendBaseUrl() {
+export function getBackendBaseUrl() {
   return document.getElementsByTagName('base')[0].href;
 }
 

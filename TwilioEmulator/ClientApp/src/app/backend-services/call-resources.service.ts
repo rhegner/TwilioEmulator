@@ -1,6 +1,15 @@
 import { Injectable, Inject } from '@angular/core';
 import { HttpClient, HttpParams } from '@angular/common/http';
 import { CallResource } from '../models/CallResource';
+import { Page } from '../models/Page';
+import { objectToQueryString } from './utils';
+
+export class GetCallResourcesOptions {
+  directionFilter?: string[];
+  statusFilter?: string[];
+  page?: number;
+  pageSize?: number;
+}
 
 @Injectable({
   providedIn: 'root'
@@ -17,5 +26,9 @@ export class CallResourcesService {
       .set('url', url)
       .set('httpMethod', httpMethod);
     return this.http.post<CallResource>(this.backendBaseUrl + 'api/CallResources/Incoming', payload).toPromise();
+  }
+
+  public getCallResources(options?: GetCallResourcesOptions): Promise<Page<CallResource>> {
+    return this.http.get<Page<CallResource>>(this.backendBaseUrl + 'api/CallResources' + objectToQueryString(options)).toPromise();
   }
 }

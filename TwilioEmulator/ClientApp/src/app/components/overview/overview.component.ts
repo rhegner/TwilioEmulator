@@ -1,6 +1,7 @@
 import { Component, OnInit, ViewChild } from '@angular/core';
-import { MatPaginator, MatSort } from '@angular/material';
-import { TableTestDataSource } from '../table-test/table-test-datasource';
+import { MatPaginator } from '@angular/material';
+import { CallResourceDataSource } from 'src/app/data-sources/CallResourceDataSource';
+import { CallResourcesService } from 'src/app/backend-services/call-resources.service';
 
 @Component({
   selector: 'app-overview',
@@ -9,15 +10,19 @@ import { TableTestDataSource } from '../table-test/table-test-datasource';
 })
 export class OverviewComponent implements OnInit {
 
-  @ViewChild(MatPaginator) paginator: MatPaginator;
-  @ViewChild(MatSort) sort: MatSort;
-  dataSource: TableTestDataSource;
+  @ViewChild(MatPaginator) callsPaginator: MatPaginator;
 
-  /** Columns displayed in the table. Columns IDs can be added, removed, or reordered. */
-  displayedColumns = ['id', 'name'];
+  public callsDataSource: CallResourceDataSource;
+
+  displayedColumns = [ 'direction', 'sid', 'from', 'to', 'status' ];
+
+  constructor(private callResourcesService: CallResourcesService) {
+  }
 
   ngOnInit() {
-    this.dataSource = new TableTestDataSource(this.paginator, this.sort);
+    this.callsDataSource = new CallResourceDataSource(20, this.callResourcesService);
+    this.callsDataSource.statusFilter = [ 'queued', 'ringing', 'in-progress' ];
+    this.callsDataSource.refresh();
   }
 
 }

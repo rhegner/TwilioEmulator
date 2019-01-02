@@ -1,5 +1,6 @@
 import { Component, OnInit } from '@angular/core';
 import { CallResourcesService } from 'src/app/backend-services/call-resources.service';
+import { MatDialogRef } from '@angular/material';
 
 @Component({
   selector: 'app-new-incoming-call-dialog',
@@ -13,12 +14,14 @@ export class NewIncomingCallDialogComponent implements OnInit {
   public from = '';
   public to = '';
 
-  constructor(private callResourcesService: CallResourcesService) { }
+  constructor(private dialogRef: MatDialogRef<NewIncomingCallDialogComponent>,
+    private callResourcesService: CallResourcesService) { }
 
   ngOnInit() {
   }
 
   public async ok() {
     await this.callResourcesService.createIncomingCall(this.from, this.to, this.url, this.httpMethod);
+    this.dialogRef.close();
   }
 }
