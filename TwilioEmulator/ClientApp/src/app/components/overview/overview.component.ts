@@ -2,6 +2,7 @@ import { Component, OnInit, ViewChild } from '@angular/core';
 import { MatPaginator } from '@angular/material';
 import { CallResourceDataSource } from 'src/app/data-sources/CallResourceDataSource';
 import { CallResourcesService } from 'src/app/backend-services/call-resources.service';
+import { CallResourcesHubService } from 'src/app/backend-services/call-resources-hub.service';
 
 @Component({
   selector: 'app-overview',
@@ -16,11 +17,12 @@ export class OverviewComponent implements OnInit {
 
   displayedColumns = [ 'direction', 'sid', 'from', 'to', 'status' ];
 
-  constructor(private callResourcesService: CallResourcesService) {
+  constructor(private callResourcesService: CallResourcesService,
+    private callResourceHub: CallResourcesHubService) {
   }
 
   ngOnInit() {
-    this.callsDataSource = new CallResourceDataSource(20, this.callResourcesService);
+    this.callsDataSource = new CallResourceDataSource(20, this.callResourcesService, this.callResourceHub);
     this.callsDataSource.statusFilter = [ 'queued', 'ringing', 'in-progress' ];
     this.callsDataSource.refresh();
   }
