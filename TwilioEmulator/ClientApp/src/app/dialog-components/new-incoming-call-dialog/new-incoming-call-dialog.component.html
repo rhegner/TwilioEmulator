@@ -1,0 +1,23 @@
+<h1 mat-dialog-title>Create new incoming call</h1>
+<mat-dialog-content>
+  <mat-form-field class="full-width">
+    <mat-select placeholder="HTTP Method" [(ngModel)]="httpMethod">
+      <mat-option value="post">POST</mat-option>
+      <mat-option value="get">GET</mat-option>
+    </mat-select>
+  </mat-form-field>
+  <mat-form-field class="full-width">
+    <input matInput type="url" placeholder="TwiML endpoint" [(ngModel)]="url">
+  </mat-form-field>
+  <mat-form-field class="full-width">
+    <input matInput type="tel" placeholder="From phone number" [(ngModel)]="from">
+  </mat-form-field>
+  <mat-form-field class="full-width">
+    <input matInput type="tel" placeholder="To phone number" [(ngModel)]="to">
+  </mat-form-field>
+</mat-dialog-content>
+<mat-dialog-actions>
+  <button mat-button mat-dialog-close>Cancel</button>
+  <span class="flex-fill"></span>
+  <button mat-button (click)="ok()">OK</button>
+</mat-dialog-actions>
