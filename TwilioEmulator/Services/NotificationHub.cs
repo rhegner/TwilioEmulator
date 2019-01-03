@@ -29,6 +29,7 @@ namespace TwilioEmulator.Services
             TwilioEngine.CallResourceChanged += CallResources_CallResourceChanged;
             TwilioEngine.ConferenceResourceChanged += TwilioEngine_ConferenceResourceChanged;
             TwilioEngine.NewApiCall += CallResources_NewApiCall;
+            TwilioEngine.NewActivityLog += TwilioEngine_NewActivityLog;
             return Task.CompletedTask;
         }
 
@@ -37,6 +38,7 @@ namespace TwilioEmulator.Services
             TwilioEngine.CallResourceChanged -= CallResources_CallResourceChanged;
             TwilioEngine.ConferenceResourceChanged -= TwilioEngine_ConferenceResourceChanged;
             TwilioEngine.NewApiCall -= CallResources_NewApiCall;
+            TwilioEngine.NewActivityLog -= TwilioEngine_NewActivityLog;
             return Task.CompletedTask;
         }
 
@@ -87,5 +89,22 @@ namespace TwilioEmulator.Services
                 Logger.LogError(ex, "Could not send new api call notifications");
             }
         }
+
+        private async void TwilioEngine_NewActivityLog(object sender, TwilioLogic.EventModels.NewActivityLogEventArgs e)
+        {
+            try
+            {
+                using (var scope = ServiceScopeFactory.CreateScope())
+                {
+                    var hubContext = scope.ServiceProvider.GetRequiredService<IHubContext<ActivityLogsHub, IActivityLogsClient>>();
+                    await hubContext.Clients.All.NewActivityLog(e.ActivityLog);
+                }
+            }
+            catch (Exception ex)
+            {
+                Logger.LogError(ex, "Could not send new activity log notifications");
+            }
+        }
+
     }
 }

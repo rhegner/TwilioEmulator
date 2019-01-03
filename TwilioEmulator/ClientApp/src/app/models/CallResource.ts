@@ -24,4 +24,7 @@ export class CallResource {
   to?: string;
   toFormatted?: string;
   uri?: string;
+
+
+  currentActivity?: string;
 }

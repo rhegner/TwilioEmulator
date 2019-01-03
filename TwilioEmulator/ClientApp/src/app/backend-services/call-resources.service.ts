@@ -4,6 +4,7 @@ import { CallResource } from '../models/CallResource';
 import { Page } from '../models/Page';
 import { objectToQueryString } from './utils';
 import { ApiCall } from '../models/ApiCall';
+import { ActivityLog } from '../models/ActivityLog';
 
 export class GetCallResourcesOptions {
   directionFilter?: string[];
@@ -39,6 +40,10 @@ export class CallResourcesService {
 
   public getApiCalls(callSid: string): Promise<ApiCall[]> {
     return this.http.get<ApiCall[]>(this.backendBaseUrl + 'api/CallResources/' + callSid + '/ApiCalls').toPromise();
+  }
+
+  public getActivityLogs(callSid: string): Promise<ActivityLog[]> {
+    return this.http.get<ApiCall[]>(this.backendBaseUrl + 'api/CallResources/' + callSid + '/ActivityLogs').toPromise();
   }
 
 }

@@ -31,5 +31,9 @@ namespace TwilioLogic.Models
 
         public int ResponseStatusCode { get; internal set; }
 
+
+
+        public string CurrentActivity { get; internal set; }
+
     }
 }

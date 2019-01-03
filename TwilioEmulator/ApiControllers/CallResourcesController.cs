@@ -49,5 +49,12 @@ namespace TwilioEmulator.ApiControllers
             return apiCalls;
         }
 
+        [HttpGet("{callSid}/ActivityLogs")]
+        public async Task<ActionResult<List<ActivityLog>>> GetActivityLogs([FromRoute] string callSid)
+        {
+            var activityLogs = await TwilioEngine.GetActivityLogs(callSid);
+            return activityLogs;
+        }
+
     }
 }

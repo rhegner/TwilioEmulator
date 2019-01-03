@@ -20,19 +20,22 @@ namespace TwilioLogic
         private readonly ICallResouceRepository CallRepository;
         private readonly IConferenceResourceRepository ConferenceRepository;
         private readonly IApiCallRepository ApiCallRepository;
+        private readonly IActivityLogRepository ActivityLogRepository;
         private readonly ILogger<TwilioEngine> Logger;
 
         public event EventHandler<CallResourceChangedEventArgs> CallResourceChanged;
         public event EventHandler<ConferenceResourceChangedEventArgs> ConferenceResourceChanged;
         public event EventHandler<NewApiCallEventArgs> NewApiCall;
+        public event EventHandler<NewActivityLogEventArgs> NewActivityLog;
 
         public TwilioEngine(IAccountRepository accountRepository, ICallResouceRepository callRepository, IConferenceResourceRepository conferenceRepository,
-            IApiCallRepository apiCallRepository, ILogger<TwilioEngine> logger)
+            IApiCallRepository apiCallRepository, IActivityLogRepository activityLogRepository, ILogger<TwilioEngine> logger)
         {
             AccountRepository = accountRepository;
             CallRepository = callRepository;
             ConferenceRepository = conferenceRepository;
             ApiCallRepository = apiCallRepository;
+            ActivityLogRepository = activityLogRepository;
             Logger = logger;
         }
 
@@ -63,9 +66,6 @@ namespace TwilioLogic
         public Task<Page<CallResource>> GetCallResources(ICollection<string> directionFilter = null, ICollection<string> statusFilter = null, int page = 1, int pageSize = int.MaxValue)
             => CallRepository.Get(directionFilter, statusFilter, page, pageSize);
 
-        public Task<List<ApiCall>> GetApiCalls(string callSid)
-            => ApiCallRepository.GetApiCallsForResource(callSid);
-
         #endregion
 
         #region public conference resource interface
@@ -75,6 +75,20 @@ namespace TwilioLogic
 
         public Task<Page<ConferenceResource>> GetConferenceResources(ICollection<string> statusFilter = null, int page = 1, int pageSize = int.MaxValue)
             => ConferenceRepository.Get(statusFilter, page, pageSize);
+
+        #endregion
+
+        #region public api calls interface
+
+        public Task<List<ApiCall>> GetApiCalls(string sid)
+            => ApiCallRepository.GetApiCallsForResource(sid);
+
+        #endregion
+
+        #region public activity log interface
+
+        public Task<List<ActivityLog>> GetActivityLogs(string sid)
+            => ActivityLogRepository.GetActivityLogsForResource(sid);
 
         #endregion
 
