@@ -13,25 +13,30 @@ using TwilioLogic.Utils;
 
 namespace TwilioLogic
 {
-    public class CallResources
+    public class TwilioEngine
     {
 
         private readonly IAccountRepository AccountRepository;
         private readonly ICallResouceRepository CallRepository;
+        private readonly IConferenceResourceRepository ConferenceRepository;
         private readonly IApiCallRepository ApiCallRepository;
-        private readonly ILogger<CallResources> Logger;
+        private readonly ILogger<TwilioEngine> Logger;
 
         public event EventHandler<CallResourceChangedEventArgs> CallResourceChanged;
+        public event EventHandler<ConferenceResourceChangedEventArgs> ConferenceResourceChanged;
         public event EventHandler<NewApiCallEventArgs> NewApiCall;
 
-        public CallResources(IAccountRepository accountRepository, ICallResouceRepository callRepository, IApiCallRepository apiCallRepository,
-            ILogger<CallResources> logger)
+        public TwilioEngine(IAccountRepository accountRepository, ICallResouceRepository callRepository, IConferenceResourceRepository conferenceRepository,
+            IApiCallRepository apiCallRepository, ILogger<TwilioEngine> logger)
         {
             AccountRepository = accountRepository;
             CallRepository = callRepository;
+            ConferenceRepository = conferenceRepository;
             ApiCallRepository = apiCallRepository;
             Logger = logger;
         }
+
+        #region public call resource interface
 
         public async Task<CallResource> CreateIncomingCall(string from, string to, Uri url, HttpMethod httpMethod)
         {
@@ -60,6 +65,20 @@ namespace TwilioLogic
 
         public Task<List<ApiCall>> GetApiCalls(string callSid)
             => ApiCallRepository.GetApiCallsForResource(callSid);
+
+        #endregion
+
+        #region public conference resource interface
+
+        public Task<ConferenceResource> GetConferenceResource(string sid)
+            => ConferenceRepository.Get(sid);
+
+        public Task<Page<ConferenceResource>> GetConferenceResources(ICollection<string> statusFilter = null, long page = 1, long pageSize = long.MaxValue)
+            => ConferenceRepository.Get(statusFilter, page, pageSize);
+
+        #endregion
+
+        #region private implementation
 
         private async void CallHandler(Uri url, HttpMethod httpMethod, string callSid)
         {
@@ -143,6 +162,8 @@ namespace TwilioLogic
                 Logger.LogError(ex, "Error invoking callback");
             }
         }
+
+        #endregion
 
     }
 }

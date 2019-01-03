@@ -14,27 +14,29 @@ namespace TwilioEmulator.Services
     {
 
         private readonly IServiceScopeFactory ServiceScopeFactory;
-        private readonly CallResources CallResources;
+        private readonly TwilioEngine TwilioEngine;
         private readonly ILogger<NotificationHub> Logger;
 
-        public NotificationHub(IServiceScopeFactory serviceScopeFactory, CallResources callResources, ILogger<NotificationHub> logger)
+        public NotificationHub(IServiceScopeFactory serviceScopeFactory, TwilioEngine twilioEngine, ILogger<NotificationHub> logger)
         {
             ServiceScopeFactory = serviceScopeFactory;
-            CallResources = callResources;
+            TwilioEngine = twilioEngine;
             Logger = logger;
         }
 
         public Task StartAsync(CancellationToken cancellationToken)
         {
-            CallResources.CallResourceChanged += CallResources_CallResourceChanged;
-            CallResources.NewApiCall += CallResources_NewApiCall;
+            TwilioEngine.CallResourceChanged += CallResources_CallResourceChanged;
+            TwilioEngine.ConferenceResourceChanged += TwilioEngine_ConferenceResourceChanged;
+            TwilioEngine.NewApiCall += CallResources_NewApiCall;
             return Task.CompletedTask;
         }
 
         public Task StopAsync(CancellationToken cancellationToken)
         {
-            CallResources.CallResourceChanged -= CallResources_CallResourceChanged;
-            CallResources.NewApiCall -= CallResources_NewApiCall;
+            TwilioEngine.CallResourceChanged -= CallResources_CallResourceChanged;
+            TwilioEngine.ConferenceResourceChanged -= TwilioEngine_ConferenceResourceChanged;
+            TwilioEngine.NewApiCall -= CallResources_NewApiCall;
             return Task.CompletedTask;
         }
 
@@ -51,6 +53,22 @@ namespace TwilioEmulator.Services
             catch (Exception ex)
             {
                 Logger.LogError(ex, "Could not send call resource update notifications");
+            }
+        }
+
+        private async void TwilioEngine_ConferenceResourceChanged(object sender, TwilioLogic.EventModels.ConferenceResourceChangedEventArgs e)
+        {
+            try
+            {
+                using (var scope = ServiceScopeFactory.CreateScope())
+                {
+                    var hubContext = scope.ServiceProvider.GetRequiredService<IHubContext<ConferenceResourcesHub, IConferenceResourcesClient>>();
+                    await hubContext.Clients.All.ConferenceResourceUpdate(e.ConferenceResource);
+                }
+            }
+            catch (Exception ex)
+            {
+                Logger.LogError(ex, "Could not send conference resource update notifications");
             }
         }
 

@@ -16,6 +16,8 @@ import { HttpClientModule } from '@angular/common/http';
 import { CallResourceComponent } from './components/call-resource/call-resource.component';
 import { DashboardTestComponent } from './components/dashboard-test/dashboard-test.component';
 import { AddressFormTestComponent } from './components/address-form-test/address-form-test.component';
+import { CallsTableComponent } from './views/calls-table/calls-table.component';
+import { ConferencesTableComponent } from './views/conferences-table/conferences-table.component';
 
 export function getBaseUrl() {
   return document.getElementsByTagName('base')[0].href;
@@ -33,7 +35,9 @@ export function getBackendBaseUrl() {
     NewIncomingCallDialogComponent,
     CallResourceComponent,
     DashboardTestComponent,
-    AddressFormTestComponent
+    AddressFormTestComponent,
+    CallsTableComponent,
+    ConferencesTableComponent
   ],
   entryComponents: [
     NewIncomingCallDialogComponent

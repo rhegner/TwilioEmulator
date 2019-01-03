@@ -20,7 +20,7 @@ export class CallResource {
   sid?: string;
   startTime?: Date;
   status?: string;
-  subresourceUris?: string[];
+  subresourceUris?: any;
   to?: string;
   toFormatted?: string;
   uri?: string;

@@ -1,4 +1,5 @@
 ﻿using System;
+using System.Collections.Generic;
 using TwilioLogic.Utils;
 
 namespace TwilioLogic.Models
@@ -47,7 +48,7 @@ namespace TwilioLogic.Models
 
         public string Status { get; internal set; } = "queued";
 
-        public string[] SubresourceUris { get; internal set; } = new string[0];
+        public Dictionary<string, string> SubresourceUris { get; internal set; } = new Dictionary<string, string>();
 
         public string To { get; internal set; } = "";
 
