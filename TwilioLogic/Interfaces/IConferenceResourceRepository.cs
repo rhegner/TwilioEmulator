@@ -12,7 +12,7 @@ namespace TwilioLogic.Interfaces
 
         Task<ConferenceResource> Get(string sid);
 
-        Task<Page<ConferenceResource>> Get(ICollection<string> statusFilter = null, long page = 1, long pageSize = long.MaxValue);
+        Task<Page<ConferenceResource>> Get(ICollection<string> statusFilter = null, int page = 1, int pageSize = int.MaxValue);
 
         Task Update(ConferenceResource conference);
     }

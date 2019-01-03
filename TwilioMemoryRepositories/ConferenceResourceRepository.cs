@@ -48,7 +48,7 @@ namespace TwilioMemoryRepositories
             }
         }
 
-        public Task<Page<ConferenceResource>> Get(ICollection<string> statusFilter = null, long page = 1, long pageSize = long.MaxValue)
+        public Task<Page<ConferenceResource>> Get(ICollection<string> statusFilter = null, int page = 1, int pageSize = int.MaxValue)
         {
             lock (ConferencesLock)
             {
@@ -56,6 +56,7 @@ namespace TwilioMemoryRepositories
                 if (statusFilter != null && statusFilter.Count > 0)
                     query = query.Where(c => statusFilter.Contains(c.Status));
                 query = query.OrderByDescending(c => c.DateCreated);
+                query = query.Skip((page - 1) * pageSize).Take(pageSize);
                 return Task.FromResult(new Page<ConferenceResource>(page, Conferences.Count, pageSize, query.ToList()));
             }
         }

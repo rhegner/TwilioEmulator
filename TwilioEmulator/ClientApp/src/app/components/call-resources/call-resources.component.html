@@ -1,0 +1,6 @@
+<mat-card class="my-card">
+  <mat-card-title>Call Resources</mat-card-title>
+  <app-calls-table [dataSource]="callsDataSource"></app-calls-table>
+  <mat-paginator #callsPaginator [pageIndex]="0" [pageSize]="50" [pageSizeOptions]="[25, 50, 100, 250]">
+</mat-paginator>
+</mat-card>

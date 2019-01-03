@@ -39,7 +39,7 @@ namespace TwilioMemoryRepositories
             }
         }
 
-        public Task<Page<CallResource>> Get(ICollection<string> directionFilter = null, ICollection<string> statusFilter = null, long page = 1, long pageSize = long.MaxValue)
+        public Task<Page<CallResource>> Get(ICollection<string> directionFilter = null, ICollection<string> statusFilter = null, int page = 1, int pageSize = int.MaxValue)
         {
             lock (CallsLock)
             {
@@ -49,6 +49,7 @@ namespace TwilioMemoryRepositories
                 if (statusFilter != null && statusFilter.Count > 0)
                     query = query.Where(c => statusFilter.Contains(c.Status));
                 query = query.OrderByDescending(c => c.DateCreated);
+                query = query.Skip((page - 1) * pageSize).Take(pageSize);
                 return Task.FromResult(new Page<CallResource>(page, Calls.Count, pageSize, query.ToList()));
             }
         }

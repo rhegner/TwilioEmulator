@@ -11,7 +11,7 @@ namespace TwilioLogic.Interfaces
 
         Task<CallResource> Get(string sid);
 
-        Task<Page<CallResource>> Get(ICollection<string> directionFilter = null, ICollection<string> statusFilter = null, long page = 1, long pageSize = long.MaxValue);
+        Task<Page<CallResource>> Get(ICollection<string> directionFilter = null, ICollection<string> statusFilter = null, int page = 1, int pageSize = int.MaxValue);
 
         Task Update(CallResource call);
 

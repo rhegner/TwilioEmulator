@@ -36,7 +36,7 @@ namespace TwilioEmulator.ApiControllers
         }
 
         [HttpGet]
-        public async Task<ActionResult<Page<CallResource>>> GetCallResources([FromQuery] ICollection<string> directionFilter = null, [FromQuery] ICollection<string> statusFilter = null, [FromQuery] long page = 1, [FromQuery] long pageSize = 20)
+        public async Task<ActionResult<Page<CallResource>>> GetCallResources([FromQuery] ICollection<string> directionFilter = null, [FromQuery] ICollection<string> statusFilter = null, [FromQuery] int page = 1, [FromQuery] int pageSize = 20)
         {
             var calls = await TwilioEngine.GetCallResources(directionFilter, statusFilter, page, pageSize);
             return calls;

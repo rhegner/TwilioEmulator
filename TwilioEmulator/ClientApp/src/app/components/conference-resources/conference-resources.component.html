@@ -1,0 +1,6 @@
+<mat-card class="my-card">
+  <mat-card-title>Conference Resources</mat-card-title>
+  <app-conferences-table [dataSource]="conferencesDataSource"></app-conferences-table>
+  <mat-paginator #conferencesPaginator [pageIndex]="0" [pageSize]="50" [pageSizeOptions]="[25, 50, 100, 250]">
+</mat-paginator>
+</mat-card>

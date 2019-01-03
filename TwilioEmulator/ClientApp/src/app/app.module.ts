@@ -18,6 +18,8 @@ import { DashboardTestComponent } from './components/dashboard-test/dashboard-te
 import { AddressFormTestComponent } from './components/address-form-test/address-form-test.component';
 import { CallsTableComponent } from './views/calls-table/calls-table.component';
 import { ConferencesTableComponent } from './views/conferences-table/conferences-table.component';
+import { CallResourcesComponent } from './components/call-resources/call-resources.component';
+import { ConferenceResourcesComponent } from './components/conference-resources/conference-resources.component';
 
 export function getBaseUrl() {
   return document.getElementsByTagName('base')[0].href;
@@ -37,7 +39,9 @@ export function getBackendBaseUrl() {
     DashboardTestComponent,
     AddressFormTestComponent,
     CallsTableComponent,
-    ConferencesTableComponent
+    ConferencesTableComponent,
+    CallResourcesComponent,
+    ConferenceResourcesComponent
   ],
   entryComponents: [
     NewIncomingCallDialogComponent

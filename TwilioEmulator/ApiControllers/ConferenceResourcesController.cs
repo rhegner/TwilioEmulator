@@ -26,7 +26,7 @@ namespace TwilioEmulator.ApiControllers
         }
 
         [HttpGet]
-        public async Task<ActionResult<Page<ConferenceResource>>> GetConferenceResources([FromQuery] ICollection<string> statusFilter = null, [FromQuery] long page = 1, [FromQuery] long pageSize = 20)
+        public async Task<ActionResult<Page<ConferenceResource>>> GetConferenceResources([FromQuery] ICollection<string> statusFilter = null, [FromQuery] int page = 1, [FromQuery] int pageSize = 20)
         {
             var conferences = await TwilioEngine.GetConferenceResources(statusFilter, page, pageSize);
             return conferences;

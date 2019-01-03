@@ -60,7 +60,7 @@ namespace TwilioLogic
         public Task<CallResource> GetCallResource(string callSid)
             => CallRepository.Get(callSid);
 
-        public Task<Page<CallResource>> GetCallResources(ICollection<string> directionFilter = null, ICollection<string> statusFilter = null, long page = 1, long pageSize = long.MaxValue)
+        public Task<Page<CallResource>> GetCallResources(ICollection<string> directionFilter = null, ICollection<string> statusFilter = null, int page = 1, int pageSize = int.MaxValue)
             => CallRepository.Get(directionFilter, statusFilter, page, pageSize);
 
         public Task<List<ApiCall>> GetApiCalls(string callSid)
@@ -73,7 +73,7 @@ namespace TwilioLogic
         public Task<ConferenceResource> GetConferenceResource(string sid)
             => ConferenceRepository.Get(sid);
 
-        public Task<Page<ConferenceResource>> GetConferenceResources(ICollection<string> statusFilter = null, long page = 1, long pageSize = long.MaxValue)
+        public Task<Page<ConferenceResource>> GetConferenceResources(ICollection<string> statusFilter = null, int page = 1, int pageSize = int.MaxValue)
             => ConferenceRepository.Get(statusFilter, page, pageSize);
 
         #endregion
