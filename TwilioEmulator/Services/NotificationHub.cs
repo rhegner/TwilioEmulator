@@ -27,12 +27,14 @@ namespace TwilioEmulator.Services
         public Task StartAsync(CancellationToken cancellationToken)
         {
             CallResources.CallResourceChanged += CallResources_CallResourceChanged;
+            CallResources.NewApiCall += CallResources_NewApiCall;
             return Task.CompletedTask;
         }
 
         public Task StopAsync(CancellationToken cancellationToken)
         {
             CallResources.CallResourceChanged -= CallResources_CallResourceChanged;
+            CallResources.NewApiCall -= CallResources_NewApiCall;
             return Task.CompletedTask;
         }
 
@@ -49,6 +51,22 @@ namespace TwilioEmulator.Services
             catch (Exception ex)
             {
                 Logger.LogError(ex, "Could not send call resource update notifications");
+            }
+        }
+
+        private async void CallResources_NewApiCall(object sender, TwilioLogic.EventModels.NewApiCallEventArgs e)
+        {
+            try
+            {
+                using (var scope = ServiceScopeFactory.CreateScope())
+                {
+                    var hubContext = scope.ServiceProvider.GetRequiredService<IHubContext<ApiCallsHub, IApiCallsClient>>();
+                    await hubContext.Clients.All.NewApiCall(e.ApiCall);
+                }
+            }
+            catch (Exception ex)
+            {
+                Logger.LogError(ex, "Could not send new api call notifications");
             }
         }
     }

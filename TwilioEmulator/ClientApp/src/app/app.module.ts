@@ -7,12 +7,15 @@ import { BrowserAnimationsModule } from '@angular/platform-browser/animations';
 import { LayoutModule } from '@angular/cdk/layout';
 import { MatToolbarModule, MatButtonModule, MatSidenavModule, MatIconModule, MatListModule,
   MatGridListModule, MatCardModule, MatMenuModule, MatTableModule, MatPaginatorModule, MatSortModule,
-  MatDialogModule, MatFormFieldModule, MatSelectModule, MatInputModule } from '@angular/material';
+  MatDialogModule, MatFormFieldModule, MatSelectModule, MatInputModule, MatRadioModule, MatTabsModule } from '@angular/material';
 import { TableTestComponent } from './components/table-test/table-test.component';
 import { OverviewComponent } from './components/overview/overview.component';
 import { NewIncomingCallDialogComponent } from './dialog-components/new-incoming-call-dialog/new-incoming-call-dialog.component';
-import { FormsModule } from '@angular/forms';
+import { FormsModule, ReactiveFormsModule } from '@angular/forms';
 import { HttpClientModule } from '@angular/common/http';
+import { CallResourceComponent } from './components/call-resource/call-resource.component';
+import { DashboardTestComponent } from './components/dashboard-test/dashboard-test.component';
+import { AddressFormTestComponent } from './components/address-form-test/address-form-test.component';
 
 export function getBaseUrl() {
   return document.getElementsByTagName('base')[0].href;
@@ -27,7 +30,10 @@ export function getBackendBaseUrl() {
     AppComponent,
     TableTestComponent,
     OverviewComponent,
-    NewIncomingCallDialogComponent
+    NewIncomingCallDialogComponent,
+    CallResourceComponent,
+    DashboardTestComponent,
+    AddressFormTestComponent
   ],
   entryComponents: [
     NewIncomingCallDialogComponent
@@ -50,10 +56,13 @@ export function getBackendBaseUrl() {
     MatCardModule,
     MatDialogModule,
     MatMenuModule,
+    MatTabsModule,
     MatTableModule,
     MatPaginatorModule,
     MatSelectModule,
-    MatSortModule
+    MatSortModule,
+    MatRadioModule,
+    ReactiveFormsModule
   ],
   providers: [
     { provide: 'BASE_URL', useFactory: getBaseUrl },

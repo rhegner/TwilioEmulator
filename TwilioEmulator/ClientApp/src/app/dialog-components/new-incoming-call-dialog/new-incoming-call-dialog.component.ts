@@ -18,6 +18,10 @@ export class NewIncomingCallDialogComponent implements OnInit {
     private callResourcesService: CallResourcesService) { }
 
   ngOnInit() {
+    // TODO: get rid of this:
+    this.url = 'http://localhost:5000/api/Twilio/Welcome';
+    this.from = '+41788831118';
+    this.to = '+41435051119';
   }
 
   public async ok() {

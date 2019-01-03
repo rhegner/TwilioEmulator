@@ -28,10 +28,10 @@ namespace TwilioEmulator.ApiControllers
             return call;
         }
 
-        [HttpGet("{sid}")]
-        public async Task<ActionResult<CallResource>> GetCallResource([FromRoute] string sid)
+        [HttpGet("{callSid}")]
+        public async Task<ActionResult<CallResource>> GetCallResource([FromRoute] string callSid)
         {
-            var call = await CallResources.GetCallResource(sid);
+            var call = await CallResources.GetCallResource(callSid);
             return call;
         }
 
@@ -40,6 +40,13 @@ namespace TwilioEmulator.ApiControllers
         {
             var calls = await CallResources.GetCallResources(directionFilter, statusFilter, page, pageSize);
             return calls;
+        }
+
+        [HttpGet("{callSid}/ApiCalls")]
+        public async Task<ActionResult<List<ApiCall>>> GetApiCalls([FromRoute] string callSid)
+        {
+            var apiCalls = await CallResources.GetApiCalls(callSid);
+            return apiCalls;
         }
 
     }

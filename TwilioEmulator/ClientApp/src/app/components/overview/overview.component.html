@@ -1,37 +1,39 @@
-<mat-card>
+<mat-card class="my-card">
   <mat-card-title>Active Calls</mat-card-title>
   <table mat-table class="full-width" [dataSource]="callsDataSource">
 
     <ng-container matColumnDef="direction">
       <th mat-header-cell *matHeaderCellDef>Dir</th>
-      <td mat-cell *matCellDef="let row">
-        <mat-icon *ngIf="row.direction == 'inbound'">call_received</mat-icon>
-        <mat-icon *ngIf="row.direction == 'outbound-api'">call_made</mat-icon>
-        <mat-icon *ngIf="row.direction == 'outbound-dial'">call_missed_outgoing</mat-icon>
+      <td mat-cell *matCellDef="let element">
+        <mat-icon *ngIf="element.direction == 'inbound'">call_received</mat-icon>
+        <mat-icon *ngIf="element.direction == 'outbound-api'">call_made</mat-icon>
+        <mat-icon *ngIf="element.direction == 'outbound-dial'">call_missed_outgoing</mat-icon>
       </td>
     </ng-container>
 
     <ng-container matColumnDef="from">
       <th mat-header-cell *matHeaderCellDef>From</th>
-      <td mat-cell *matCellDef="let row">{{row.fromFormatted}}</td>
+      <td mat-cell *matCellDef="let element">{{element.fromFormatted}}</td>
     </ng-container>
 
     <ng-container matColumnDef="sid">
       <th mat-header-cell *matHeaderCellDef>Sid</th>
-      <td mat-cell *matCellDef="let row">{{row.sid}}</td>
+      <td mat-cell *matCellDef="let element">{{element.sid}}</td>
     </ng-container>
 
     <ng-container matColumnDef="status">
       <th mat-header-cell *matHeaderCellDef>Status</th>
-      <td mat-cell *matCellDef="let row">{{row.status}}</td>
+      <td mat-cell *matCellDef="let element">{{element.status}}</td>
     </ng-container>
 
     <ng-container matColumnDef="to">
       <th mat-header-cell *matHeaderCellDef>To</th>
-      <td mat-cell *matCellDef="let row">{{row.toFormatted}}</td>
+      <td mat-cell *matCellDef="let element">{{element.toFormatted}}</td>
     </ng-container>
 
     <tr mat-header-row *matHeaderRowDef="displayedColumns"></tr>
-    <tr mat-row *matRowDef="let row; columns: displayedColumns;"></tr>
+    <tr mat-row *matRowDef="let element; columns: displayedColumns;" [routerLink]="['/callresources', element.sid]"
+      class="hover-row">
+    </tr>
   </table>
 </mat-card>

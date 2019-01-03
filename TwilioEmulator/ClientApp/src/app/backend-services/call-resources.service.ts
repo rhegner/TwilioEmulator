@@ -3,6 +3,7 @@ import { HttpClient, HttpParams } from '@angular/common/http';
 import { CallResource } from '../models/CallResource';
 import { Page } from '../models/Page';
 import { objectToQueryString } from './utils';
+import { ApiCall } from '../models/ApiCall';
 
 export class GetCallResourcesOptions {
   directionFilter?: string[];
@@ -28,7 +29,16 @@ export class CallResourcesService {
     return this.http.post<CallResource>(this.backendBaseUrl + 'api/CallResources/Incoming', payload).toPromise();
   }
 
+  public getCallResource(callSid: string): Promise<CallResource> {
+    return this.http.get<CallResource>(this.backendBaseUrl + 'api/CallResources/' + callSid).toPromise();
+  }
+
   public getCallResources(options?: GetCallResourcesOptions): Promise<Page<CallResource>> {
     return this.http.get<Page<CallResource>>(this.backendBaseUrl + 'api/CallResources' + objectToQueryString(options)).toPromise();
   }
+
+  public getApiCalls(callSid: string): Promise<ApiCall[]> {
+    return this.http.get<ApiCall[]>(this.backendBaseUrl + 'api/CallResources/' + callSid + '/ApiCalls').toPromise();
+  }
+
 }

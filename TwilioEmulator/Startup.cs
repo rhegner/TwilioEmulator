@@ -33,6 +33,7 @@ namespace TwilioEmulator
             services.AddSingleton<CallResources>();
             services.AddSingleton<IAccountRepository>(new AccountRepository());
             services.AddSingleton<ICallResouceRepository>(new CallResourceRepository());
+            services.AddSingleton<IApiCallRepository>(new ApiCallRepository());
 
             // In production, the Angular files will be served from this directory
             services.AddSpaStaticFiles(configuration =>
@@ -58,6 +59,7 @@ namespace TwilioEmulator
 
             app.UseSignalR(routes => {
                 routes.MapHub<CallResourcesHub>("/hubs/callresources");
+                routes.MapHub<ApiCallsHub>("/hubs/apicalls");
             });
 
             app.UseMvc(routes =>
