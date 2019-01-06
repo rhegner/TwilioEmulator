@@ -50,7 +50,7 @@ namespace TwilioEmulator.Services
                 using (var scope = ServiceScopeFactory.CreateScope())
                 {
                     var hubContext = scope.ServiceProvider.GetRequiredService<IHubContext<ResourceCudNotificationHub<T>, IResourceCudNotificationClient<T>>>();
-                    await hubContext.Clients.All.ResourceCudOperation(e.Resource, e.Operation);
+                    await hubContext.Clients.Groups("*", e.Resource.GetTopLevelSid()).ResourceCudOperation(e.Resource, e.Operation);
                 }
             }
             catch (Exception ex)

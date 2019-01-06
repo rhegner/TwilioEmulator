@@ -35,7 +35,7 @@ namespace TwilioLogic.TwilioModels
                 PageSize = pageSize;
 
                 Start = Page * PageSize;
-                End = (Page + 1) * PageSize - 1;
+                End = Start + Math.Max((resources.Count - 1), 0);
 
                 Uri = currentUrl.GetComponents(UriComponents.PathAndQuery, UriFormat.SafeUnescaped);
 

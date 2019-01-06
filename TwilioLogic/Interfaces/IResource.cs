@@ -3,6 +3,6 @@
     public interface IResource
     {
         string GetSid();
-        string GetParentResourceSid();
+        string GetTopLevelSid();
     }
 }

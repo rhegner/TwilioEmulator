@@ -8,7 +8,7 @@ namespace TwilioLogic.TwilioModels
     {
         public string AccountSid { get; internal set; } = TwilioUtils.CreateSid("AC");
 
-        public string ApiVersion { get; internal set; } = "2008-08-01";
+        public string ApiVersion { get; internal set; } = "2010-04-01";
 
         public DateTime DateCreated { get; internal set; } = DateTime.UtcNow;
 
@@ -36,7 +36,7 @@ namespace TwilioLogic.TwilioModels
 
 
         public string GetSid() => Sid;
-        public string GetParentResourceSid() => Sid;
+        public string GetTopLevelSid() => Sid;
     }
 
     public class ConferenceSubResources

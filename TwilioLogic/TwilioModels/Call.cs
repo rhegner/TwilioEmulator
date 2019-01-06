@@ -63,7 +63,7 @@ namespace TwilioLogic.TwilioModels
 
         public string GetSid() => Sid;
 
-        public string GetParentResourceSid() => Sid;
+        public string GetTopLevelSid() => Sid;
     }
 
     public class CallSubResources
