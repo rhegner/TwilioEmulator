@@ -2,7 +2,7 @@
 using System.Threading.Tasks;
 using TwilioLogic.Models;
 
-namespace TwilioLogic.Interfaces
+namespace TwilioLogic.RepositoryInterfaces
 {
     public interface IActivityLogRepository
     {

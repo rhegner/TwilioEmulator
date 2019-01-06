@@ -6,9 +6,11 @@ using System.Linq;
 using System.Net.Http;
 using System.Threading.Tasks;
 using System.Web;
+using Twilio.Rest.Api.V2010.Account;
 using TwilioLogic.EventModels;
-using TwilioLogic.Interfaces;
 using TwilioLogic.Models;
+using TwilioLogic.RepositoryInterfaces;
+using TwilioLogic.TwilioModels;
 using TwilioLogic.Utils;
 
 namespace TwilioLogic
@@ -17,33 +19,31 @@ namespace TwilioLogic
     {
 
         private readonly IAccountRepository AccountRepository;
-        private readonly ICallResouceRepository CallRepository;
-        private readonly IConferenceResourceRepository ConferenceRepository;
-        private readonly IApiCallRepository ApiCallRepository;
+        private readonly ICallRepository CallRepository;
+        private readonly IConferenceRepository ConferenceRepository;
         private readonly IActivityLogRepository ActivityLogRepository;
         private readonly ILogger<TwilioEngine> Logger;
 
-        public event EventHandler<CallResourceChangedEventArgs> CallResourceChanged;
-        public event EventHandler<ConferenceResourceChangedEventArgs> ConferenceResourceChanged;
-        public event EventHandler<NewApiCallEventArgs> NewApiCall;
+        public event EventHandler<ResourceCudOperationEventArgs<Call>> CallCudOperation;
+        public event EventHandler<ResourceCudOperationEventArgs<Conference>> ConferenceCudOperation;
         public event EventHandler<NewActivityLogEventArgs> NewActivityLog;
 
-        public TwilioEngine(IAccountRepository accountRepository, ICallResouceRepository callRepository, IConferenceResourceRepository conferenceRepository,
-            IApiCallRepository apiCallRepository, IActivityLogRepository activityLogRepository, ILogger<TwilioEngine> logger)
+        public TwilioEngine(IAccountRepository accountRepository, ICallRepository callRepository, IConferenceRepository conferenceRepository,
+            IActivityLogRepository activityLogRepository, ILogger<TwilioEngine> logger)
         {
             AccountRepository = accountRepository;
             CallRepository = callRepository;
             ConferenceRepository = conferenceRepository;
-            ApiCallRepository = apiCallRepository;
             ActivityLogRepository = activityLogRepository;
             Logger = logger;
         }
 
-        #region public call resource interface
+        #region public call interface
 
-        public async Task<CallResource> CreateIncomingCall(string from, string to, Uri url, HttpMethod httpMethod)
+        public async Task<Call> CreateIncomingCall(string from, string to, Uri url, HttpMethod httpMethod)
         {
-            var call = new CallResource() {
+            var call = new Call()
+            {
                 AccountSid = AccountRepository.GetAccountSid(),
                 DateCreated = DateTime.UtcNow,
                 DateUpdated = DateTime.UtcNow,
@@ -54,34 +54,73 @@ namespace TwilioLogic
                 Status = "ringing",
                 To = to
             };
-            await CallRepository.Create(call);
-            CallResourceChanged?.Invoke(this, new CallResourceChangedEventArgs(call, true));
+            await CallRepository.CreateCall(call);
+            CallCudOperation?.Invoke(this, new ResourceCudOperationEventArgs<Call>(call, ResourceCudOperation.Create));
             CallHandler(url, httpMethod, call.Sid);
             return call;
         }
 
-        public Task<CallResource> GetCallResource(string callSid)
-            => CallRepository.Get(callSid);
+        public async Task<Call> CreateCall(CreateCallOptions options, string apiVersion)
+        {
+            var call = new Call()
+            {
+                AccountSid = options.PathAccountSid,
+                ApiVersion = apiVersion,
+                DateCreated = DateTime.UtcNow,
+                DateUpdated = DateTime.UtcNow,
+                Direction = "outbound-api",
+                From = options.From.ToString(),
+                PhoneNumberSid = await AccountRepository.GetPhoneNumberSid(options.From.ToString()),
+                Sid = TwilioUtils.CreateSid("CA"),
+                Status = Twilio.Rest.Api.V2010.Account.CallResource.StatusEnum.Queued.ToString(),
+                To = options.To.ToString()
+            };
+            await CallRepository.CreateCall(call);
+            CallCudOperation?.Invoke(this, new ResourceCudOperationEventArgs<Call>(call, ResourceCudOperation.Create));
+            CallHandler(options.Url, new HttpMethod(options.Method.ToString()), call.Sid);
+            return call;
+        }
 
-        public Task<Page<CallResource>> GetCallResources(ICollection<string> directionFilter = null, ICollection<string> statusFilter = null, int page = 1, int pageSize = int.MaxValue)
-            => CallRepository.Get(directionFilter, statusFilter, page, pageSize);
+        public Task<Call> FetchCall(FetchCallOptions options)
+            => CallRepository.GetCall(options.PathSid);
+
+        public Task<CallsPage> GetCallsPage(Uri url)
+            => CallRepository.GetCalls(url);
+
+        public async Task<Call> UpdateCall(UpdateCallOptions options)
+        {
+            var call = await CallRepository.GetCall(options.PathSid);
+            // TODO: update
+            CallCudOperation?.Invoke(this, new ResourceCudOperationEventArgs<Call>(call, ResourceCudOperation.Update));
+            return call;
+        }
+
+        public async Task DeleteCall(DeleteCallOptions options)
+        {
+            var call = await CallRepository.GetCall(options.PathSid);
+            if (call.Status == Twilio.Rest.Api.V2010.Account.CallResource.StatusEnum.InProgress.ToString())
+                throw new InvalidOperationException("Can't delete a call which is in progress");
+            await CallRepository.DeleteCall(call.Sid);
+            CallCudOperation?.Invoke(this, new ResourceCudOperationEventArgs<Call>(call, ResourceCudOperation.Delete));
+        }
 
         #endregion
 
-        #region public conference resource interface
+        #region public conference interface
 
-        public Task<ConferenceResource> GetConferenceResource(string sid)
-            => ConferenceRepository.Get(sid);
+        public Task<Conference> FetchConference(FetchConferenceOptions options)
+            => ConferenceRepository.GetConference(options.PathSid);
 
-        public Task<Page<ConferenceResource>> GetConferenceResources(ICollection<string> statusFilter = null, int page = 1, int pageSize = int.MaxValue)
-            => ConferenceRepository.Get(statusFilter, page, pageSize);
+        public Task<ConferencesPage> GetConferencesPage(Uri url)
+            => ConferenceRepository.GetConferences(url);
 
-        #endregion
-
-        #region public api calls interface
-
-        public Task<List<ApiCall>> GetApiCalls(string sid)
-            => ApiCallRepository.GetApiCallsForResource(sid);
+        public async Task<Conference> UpdateConference(UpdateConferenceOptions options)
+        {
+            var conference = await ConferenceRepository.GetConference(options.PathSid);
+            // TODO: update
+            ConferenceCudOperation?.Invoke(this, new ResourceCudOperationEventArgs<Conference>(conference, ResourceCudOperation.Update));
+            return conference;
+        }
 
         #endregion
 
@@ -98,6 +137,8 @@ namespace TwilioLogic
         {
             try
             {
+                // TODO:
+                /*
                 var apiCall = new ApiCall()
                 {
                     ApiCallId = Guid.NewGuid(),
@@ -106,8 +147,9 @@ namespace TwilioLogic
                     Type = ApiCallType.IncomingCallCallback,
                     HttpMethod = httpMethod.ToString()
                 };
+                */
 
-                var call = await CallRepository.Get(callSid);
+                var call = await CallRepository.GetCall(callSid);
                 var callParams = new NameValueCollection();
                 callParams.Add("CallSid", call.Sid);
                 callParams.Add("AccountSid", call.AccountSid);
@@ -134,23 +176,29 @@ namespace TwilioLogic
                 {
                     request = new HttpRequestMessage(HttpMethod.Post, url);
                     request.Content = new FormUrlEncodedContent(callParams.AllKeys.Select(k => new KeyValuePair<string, string>(k, callParams[k])));
-                    apiCall.RequestContentType = request.Content.Headers.ContentType.ToString();
-                    apiCall.RequestContent = await request.Content.ReadAsStringAsync();
+
+                    // TODO:
+                    //apiCall.RequestContentType = request.Content.Headers.ContentType.ToString();
+                    //apiCall.RequestContent = await request.Content.ReadAsStringAsync();
                 }
                 else
                 {
                     throw new NotSupportedException($"{httpMethod} is not supported");
                 }
 
-                apiCall.Url = url;
+                // TODO:
+                //apiCall.Url = url;
 
                 try
                 {
                     using (var httpClient = new HttpClient())
                     {
-                        apiCall.RequestTimestamp = DateTime.UtcNow;
+                        // TODO:
+                        // apiCall.RequestTimestamp = DateTime.UtcNow;
                         using (var response = await httpClient.SendAsync(request))
                         {
+                            // TODO:
+                            /*
                             apiCall.ResponseTimestamp = DateTime.UtcNow;
                             if (response.Content != null)
                             {
@@ -158,17 +206,22 @@ namespace TwilioLogic
                                 apiCall.ResponseContent = await response.Content.ReadAsStringAsync();
                             }
                             apiCall.ResponseStatusCode = (int)response.StatusCode;
+                            */
                         }
                     }
                 }
                 catch (Exception ex)
                 {
-                    apiCall.ResponseStatusCode = -1;
+                    // TODO:
+                    // apiCall.ResponseStatusCode = -1;
                     Logger.LogError(ex, "Error sending callback request");
                 }
 
+                // TODO:
+                /*
                 await ApiCallRepository.CreateApiCall(apiCall);
                 NewApiCall?.Invoke(this, new NewApiCallEventArgs(apiCall));
+                */
 
             }
             catch (Exception ex)

@@ -3,8 +3,8 @@ using System.Collections.Concurrent;
 using System.Collections.Generic;
 using System.Linq;
 using System.Threading.Tasks;
-using TwilioLogic.Interfaces;
 using TwilioLogic.Models;
+using TwilioLogic.RepositoryInterfaces;
 
 namespace TwilioMemoryRepositories
 {

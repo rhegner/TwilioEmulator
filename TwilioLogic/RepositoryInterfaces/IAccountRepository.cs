@@ -1,6 +1,6 @@
 ﻿using System.Threading.Tasks;
 
-namespace TwilioLogic.Interfaces
+namespace TwilioLogic.RepositoryInterfaces
 {
     public interface IAccountRepository
     {

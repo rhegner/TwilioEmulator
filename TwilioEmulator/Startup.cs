@@ -8,6 +8,8 @@ using TwilioEmulator.Hubs;
 using TwilioEmulator.Services;
 using TwilioLogic;
 using TwilioLogic.Interfaces;
+using TwilioLogic.RepositoryInterfaces;
+using TwilioLogic.TwilioModels;
 using TwilioMemoryRepositories;
 
 namespace TwilioEmulator
@@ -32,9 +34,8 @@ namespace TwilioEmulator
             services.AddSingleton<NotificationHub>();
             services.AddSingleton<TwilioEngine>();
             services.AddSingleton<IAccountRepository>(new AccountRepository());
-            services.AddSingleton<ICallResouceRepository>(new CallResourceRepository());
-            services.AddSingleton<IConferenceResourceRepository>(new ConferenceResourceRepository());
-            services.AddSingleton<IApiCallRepository>(new ApiCallRepository());
+            services.AddSingleton<ICallRepository>(new CallRepository());
+            services.AddSingleton<IConferenceRepository>(new ConferenceRepository());
             services.AddSingleton<IActivityLogRepository>(new ActivityLogRepository());
 
             // In production, the Angular files will be served from this directory
@@ -60,9 +61,8 @@ namespace TwilioEmulator
             app.UseSpaStaticFiles();
 
             app.UseSignalR(routes => {
-                routes.MapHub<CallResourcesHub>("/hubs/callresources");
-                routes.MapHub<ConferenceResourcesHub>("/hubs/conferenceresources");
-                routes.MapHub<ApiCallsHub>("/hubs/apicalls");
+                routes.MapHub<ResourceCudNotificationHub<Call>>("/hubs/calls");
+                routes.MapHub<ResourceCudNotificationHub<Conference>>("/hubs/conferences");
                 routes.MapHub<ActivityLogsHub>("/hubs/activitylogs");
             });
 

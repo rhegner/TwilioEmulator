@@ -1,10 +1,10 @@
 ﻿using System;
-using System.Collections.Generic;
+using TwilioLogic.Interfaces;
 using TwilioLogic.Utils;
 
-namespace TwilioLogic.Models
+namespace TwilioLogic.TwilioModels
 {
-    public class CallResource
+    public class Call : IResource
     {
         public string AccountSid { get; internal set; } = TwilioUtils.CreateSid("AC");
 
@@ -48,12 +48,36 @@ namespace TwilioLogic.Models
 
         public string Status { get; internal set; } = "queued";
 
-        public Dictionary<string, string> SubresourceUris { get; internal set; } = new Dictionary<string, string>();
+        public CallSubResources SubresourceUris { get => new CallSubResources(this); }
 
         public string To { get; internal set; } = "";
 
         public string ToFormatted { get => TwilioUtils.FormatNumber(To); }
 
-        public string Uri { get => $"/2010-04-01/Accounts/{AccountSid}/Calls/{Sid}.json"; }
+        public string Uri { get => $"/{ApiVersion}/Accounts/{AccountSid}/Calls/{Sid}.json"; }
+
+
+
+
+        // IResource implementation
+
+        public string GetSid() => Sid;
+
+        public string GetParentResourceSid() => Sid;
+    }
+
+    public class CallSubResources
+    {
+        private readonly Call Call;
+
+        public CallSubResources(Call call)
+        {
+            Call = call;
+        }
+
+        public string Notifications { get => $"/{Call.ApiVersion}/Accounts/{Call.AccountSid}/Calls/{Call.Sid}/Notifications.json"; }
+        public string Recordings { get => $"/{Call.ApiVersion}/Accounts/{Call.AccountSid}/Calls/{Call.Sid}/Recordings.json"; }
+        public string Feedback { get => $"/{Call.ApiVersion}/Accounts/{Call.AccountSid}/Calls/{Call.Sid}/Feedback.json"; }
+        public string FeedbackSummaries { get => $"/{Call.ApiVersion}/Accounts/{Call.AccountSid}/Calls/FeedbackSummary.json"; }
     }
 }

@@ -1,6 +1,6 @@
 ﻿using System.Collections.Concurrent;
 using System.Threading.Tasks;
-using TwilioLogic.Interfaces;
+using TwilioLogic.RepositoryInterfaces;
 using TwilioLogic.Utils;
 
 namespace TwilioMemoryRepositories
