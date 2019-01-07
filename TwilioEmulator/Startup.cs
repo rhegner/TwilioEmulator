@@ -36,6 +36,7 @@ namespace TwilioEmulator
             services.AddSingleton<IAccountRepository>(new AccountRepository());
             services.AddSingleton<ICallRepository>(new CallRepository());
             services.AddSingleton<IConferenceRepository>(new ConferenceRepository());
+            services.AddSingleton<IConferenceParticipantRepository>(new ConferenceParticipantRepository());
             services.AddSingleton<IActivityLogRepository>(new ActivityLogRepository());
 
             // In production, the Angular files will be served from this directory
@@ -63,6 +64,7 @@ namespace TwilioEmulator
             app.UseSignalR(routes => {
                 routes.MapHub<ResourceCudNotificationHub<Call>>("/hubs/calls");
                 routes.MapHub<ResourceCudNotificationHub<Conference>>("/hubs/conferences");
+                routes.MapHub<ResourceCudNotificationHub<ConferenceParticipant>>("/hubs/conferenceparticipants");
                 routes.MapHub<ActivityLogsHub>("/hubs/activitylogs");
             });
 

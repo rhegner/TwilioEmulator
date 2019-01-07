@@ -44,10 +44,10 @@ namespace TwilioEmulator.TwilioApiControllers
         }
 
         [HttpPost("{callSid}.json")]
-        public async Task<ActionResult<Call>> UpdateCall([FromRoute] string accountSid, [FromBody] UpdateCallOptions updateCallOptions)
+        public async Task<ActionResult<Call>> UpdateCall([FromRoute] string accountSid, [FromRoute] string callSid, [FromBody] UpdateCallOptions updateCallOptions)
         {
             updateCallOptions.PathAccountSid = accountSid;
-            var call = await TwilioEngine.UpdateCall(updateCallOptions);
+            var call = await TwilioEngine.UpdateCall(callSid, updateCallOptions);
             return call;
         }
 

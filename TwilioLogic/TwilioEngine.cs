@@ -7,6 +7,7 @@ using System.Net.Http;
 using System.Threading.Tasks;
 using System.Web;
 using Twilio.Rest.Api.V2010.Account;
+using Twilio.Rest.Api.V2010.Account.Conference;
 using TwilioLogic.EventModels;
 using TwilioLogic.Models;
 using TwilioLogic.RepositoryInterfaces;
@@ -21,19 +22,22 @@ namespace TwilioLogic
         private readonly IAccountRepository AccountRepository;
         private readonly ICallRepository CallRepository;
         private readonly IConferenceRepository ConferenceRepository;
+        private readonly IConferenceParticipantRepository ConferenceParticipantRepository;
         private readonly IActivityLogRepository ActivityLogRepository;
         private readonly ILogger<TwilioEngine> Logger;
 
         public event EventHandler<ResourceCudOperationEventArgs<Call>> CallCudOperation;
         public event EventHandler<ResourceCudOperationEventArgs<Conference>> ConferenceCudOperation;
+        public event EventHandler<ResourceCudOperationEventArgs<ConferenceParticipant>> ConferenceParticipantCudOperation;
         public event EventHandler<NewActivityLogEventArgs> NewActivityLog;
 
-        public TwilioEngine(IAccountRepository accountRepository, ICallRepository callRepository, IConferenceRepository conferenceRepository,
+        public TwilioEngine(IAccountRepository accountRepository, ICallRepository callRepository, IConferenceRepository conferenceRepository, IConferenceParticipantRepository conferenceParticipantRepository,
             IActivityLogRepository activityLogRepository, ILogger<TwilioEngine> logger)
         {
             AccountRepository = accountRepository;
             CallRepository = callRepository;
             ConferenceRepository = conferenceRepository;
+            ConferenceParticipantRepository = conferenceParticipantRepository;
             ActivityLogRepository = activityLogRepository;
             Logger = logger;
         }
@@ -72,7 +76,7 @@ namespace TwilioLogic
                 From = options.From.ToString(),
                 PhoneNumberSid = await AccountRepository.GetPhoneNumberSid(options.From.ToString()),
                 Sid = TwilioUtils.CreateSid("CA"),
-                Status = Twilio.Rest.Api.V2010.Account.CallResource.StatusEnum.Queued.ToString(),
+                Status = CallResource.StatusEnum.Queued.ToString(),
                 To = options.To.ToString()
             };
             await CallRepository.CreateCall(call);
@@ -87,9 +91,10 @@ namespace TwilioLogic
         public Task<CallsPage> GetCallsPage(Uri url)
             => CallRepository.GetCalls(url);
 
-        public async Task<Call> UpdateCall(UpdateCallOptions options)
+        // we need to pass in callSid separately, because we can't write it from the controller action
+        public async Task<Call> UpdateCall(string callSid, UpdateCallOptions options)
         {
-            var call = await CallRepository.GetCall(options.PathSid);
+            var call = await CallRepository.GetCall(callSid);
             // TODO: update
             CallCudOperation?.Invoke(this, new ResourceCudOperationEventArgs<Call>(call, ResourceCudOperation.Update));
             return call;
@@ -98,7 +103,7 @@ namespace TwilioLogic
         public async Task DeleteCall(DeleteCallOptions options)
         {
             var call = await CallRepository.GetCall(options.PathSid);
-            if (call.Status == Twilio.Rest.Api.V2010.Account.CallResource.StatusEnum.InProgress.ToString())
+            if (call.Status == CallResource.StatusEnum.InProgress.ToString())
                 throw new InvalidOperationException("Can't delete a call which is in progress");
             await CallRepository.DeleteCall(call.Sid);
             CallCudOperation?.Invoke(this, new ResourceCudOperationEventArgs<Call>(call, ResourceCudOperation.Delete));
@@ -114,12 +119,36 @@ namespace TwilioLogic
         public Task<ConferencesPage> GetConferencesPage(Uri url)
             => ConferenceRepository.GetConferences(url);
 
-        public async Task<Conference> UpdateConference(UpdateConferenceOptions options)
+        // we need to pass in conferenceSid separately, because we can't write it from the controller action
+        public async Task<Conference> UpdateConference(string conferenceSid, UpdateConferenceOptions options)
         {
-            var conference = await ConferenceRepository.GetConference(options.PathSid);
+            var conference = await ConferenceRepository.GetConference(conferenceSid);
             // TODO: update
             ConferenceCudOperation?.Invoke(this, new ResourceCudOperationEventArgs<Conference>(conference, ResourceCudOperation.Update));
             return conference;
+        }
+
+        public Task<ConferenceParticipant> FetchConferenceParticipant(FetchParticipantOptions options)
+            => ConferenceParticipantRepository.GetConferenceParticipant(options.PathConferenceSid, options.PathCallSid);
+
+        public Task<ConferenceParticipantsPage> GetConferenceParticipantsPage(Uri url)
+            => ConferenceParticipantRepository.GetConferenceParticipants(url);
+
+        // we need to pass in conferenceSid and callSid separately, because we can't write it from the controller action
+        public async Task<ConferenceParticipant> UpdateConferenceParticipant(string conferenceSid, string callSid, UpdateParticipantOptions options)
+        {
+            var participant = await ConferenceParticipantRepository.GetConferenceParticipant(conferenceSid, callSid);
+            // TODO: apply logic
+            ConferenceParticipantCudOperation?.Invoke(this, new ResourceCudOperationEventArgs<ConferenceParticipant>(participant, ResourceCudOperation.Update));
+            return participant;
+        }
+
+        public async Task DeleteConferenceParticipant(DeleteParticipantOptions options)
+        {
+            var participant = await ConferenceParticipantRepository.GetConferenceParticipant(options.PathConferenceSid, options.PathCallSid);
+            // TODO: apply logic
+            await ConferenceParticipantRepository.DeleteConferenceParticipant(options.PathConferenceSid, options.PathCallSid);
+            ConferenceParticipantCudOperation?.Invoke(this, new ResourceCudOperationEventArgs<ConferenceParticipant>(participant, ResourceCudOperation.Delete));
         }
 
         #endregion
