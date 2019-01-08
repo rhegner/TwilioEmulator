@@ -45,14 +45,17 @@ namespace TwilioMemoryRepositories
         {
             string callSidFilter = null;
 
-            var pathMatch = Regex.Match(url.GetComponents(UriComponents.Path, UriFormat.SafeUnescaped), "^\\d{4}-\\d{2}-\\d{2}\\/Accounts\\/AC\\w{32}\\/Calls\\/(?<callId>CA\\w{32})\\/Notifications\\.json$"))
+            var pathMatch = Regex.Match(url.GetComponents(UriComponents.Path, UriFormat.SafeUnescaped), "^\\d{4}-\\d{2}-\\d{2}\\/Accounts\\/AC\\w{32}\\/Calls\\/(?<callId>CA\\w{32})\\/Notifications\\.json$");
             if (pathMatch.Success)
             {
-
+                callSidFilter = pathMatch.Groups["callId"].Value;
             }
-            if (!pathMatch.Success)
-                throw new ArgumentException("Url does not match regex", nameof(url));
-            var callSidFilter = pathMatch.Groups["callId"].Value;
+            else
+            {
+                pathMatch = Regex.Match(url.GetComponents(UriComponents.Path, UriFormat.SafeUnescaped), "^\\d{4}-\\d{2}-\\d{2}\\/Accounts\\/AC\\w{32}\\/Notifications\\.json$");
+                if (!pathMatch.Success)
+                    throw new ArgumentException("Url does not match regex", nameof(url));
+            }
 
             var queryParams = HttpUtility.ParseQueryString(url.Query);
 
