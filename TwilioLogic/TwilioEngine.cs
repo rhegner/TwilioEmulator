@@ -23,21 +23,25 @@ namespace TwilioLogic
         private readonly ICallRepository CallRepository;
         private readonly IConferenceRepository ConferenceRepository;
         private readonly IConferenceParticipantRepository ConferenceParticipantRepository;
+        private readonly IAlertRepository AlertRepository;
         private readonly IActivityLogRepository ActivityLogRepository;
         private readonly ILogger<TwilioEngine> Logger;
 
         public event EventHandler<ResourceCudOperationEventArgs<Call>> CallCudOperation;
         public event EventHandler<ResourceCudOperationEventArgs<Conference>> ConferenceCudOperation;
         public event EventHandler<ResourceCudOperationEventArgs<ConferenceParticipant>> ConferenceParticipantCudOperation;
+        public event EventHandler<ResourceCudOperationEventArgs<Alert>> AlertCudOperation;
+
         public event EventHandler<NewActivityLogEventArgs> NewActivityLog;
 
         public TwilioEngine(IAccountRepository accountRepository, ICallRepository callRepository, IConferenceRepository conferenceRepository, IConferenceParticipantRepository conferenceParticipantRepository,
-            IActivityLogRepository activityLogRepository, ILogger<TwilioEngine> logger)
+            IAlertRepository alertRepository, IActivityLogRepository activityLogRepository, ILogger<TwilioEngine> logger)
         {
             AccountRepository = accountRepository;
             CallRepository = callRepository;
             ConferenceRepository = conferenceRepository;
             ConferenceParticipantRepository = conferenceParticipantRepository;
+            AlertRepository = alertRepository;
             ActivityLogRepository = activityLogRepository;
             Logger = logger;
         }
@@ -149,6 +153,23 @@ namespace TwilioLogic
             // TODO: apply logic
             await ConferenceParticipantRepository.DeleteConferenceParticipant(options.PathConferenceSid, options.PathCallSid);
             ConferenceParticipantCudOperation?.Invoke(this, new ResourceCudOperationEventArgs<ConferenceParticipant>(participant, ResourceCudOperation.Delete));
+        }
+
+        #endregion
+
+        #region public alert interface
+
+        public async Task<Notification> FetchNotification(string alertSid)
+            => new Notification(await AlertRepository.GetAlert(alertSid));
+
+        public Task<NotificationsPage> GetNotificationsPage(Uri url)
+            => AlertRepository.GetNotificationsPage(url);
+
+        public async Task DeleteAlert(string alertSid)
+        {
+            var alert = await AlertRepository.GetAlert(alertSid);
+            await AlertRepository.DeleteAlert(alertSid);
+            AlertCudOperation?.Invoke(this, new ResourceCudOperationEventArgs<Alert>(alert, ResourceCudOperation.Delete));
         }
 
         #endregion

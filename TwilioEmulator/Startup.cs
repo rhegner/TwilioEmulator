@@ -7,7 +7,6 @@ using Microsoft.Extensions.DependencyInjection;
 using TwilioEmulator.Hubs;
 using TwilioEmulator.Services;
 using TwilioLogic;
-using TwilioLogic.Interfaces;
 using TwilioLogic.RepositoryInterfaces;
 using TwilioLogic.TwilioModels;
 using TwilioMemoryRepositories;
@@ -37,6 +36,7 @@ namespace TwilioEmulator
             services.AddSingleton<ICallRepository>(new CallRepository());
             services.AddSingleton<IConferenceRepository>(new ConferenceRepository());
             services.AddSingleton<IConferenceParticipantRepository>(new ConferenceParticipantRepository());
+            services.AddSingleton<IAlertRepository>(new AlertRepository());
             services.AddSingleton<IActivityLogRepository>(new ActivityLogRepository());
 
             // In production, the Angular files will be served from this directory
@@ -65,6 +65,7 @@ namespace TwilioEmulator
                 routes.MapHub<ResourceCudNotificationHub<Call>>("/hubs/calls");
                 routes.MapHub<ResourceCudNotificationHub<Conference>>("/hubs/conferences");
                 routes.MapHub<ResourceCudNotificationHub<ConferenceParticipant>>("/hubs/conferenceparticipants");
+                routes.MapHub<ResourceCudNotificationHub<Notification>>("/hubs/notifications");
                 routes.MapHub<ActivityLogsHub>("/hubs/activitylogs");
             });
 

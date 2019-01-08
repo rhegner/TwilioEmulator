@@ -17,6 +17,9 @@ namespace TwilioMemoryRepositories
         public static bool? GetBool(this NameValueCollection nvc, string key)
             => bool.TryParse(nvc.Get(key), out var val) ? (bool?)val : null;
 
+        public static int? GetInt(this NameValueCollection nvc, string key)
+            => int.TryParse(nvc.Get(key), out var val) ? (int?)val : null;
+
         public static int GetPage(this NameValueCollection nvc)
             => int.TryParse(nvc.Get("Page"), out var page) && (page >= 0) ? page : 0;
 
