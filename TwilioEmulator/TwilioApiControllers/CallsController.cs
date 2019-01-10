@@ -20,39 +20,39 @@ namespace TwilioEmulator.TwilioApiControllers
             TwilioEngine = twilioEngine;
         }
 
-        [HttpPost(".json")]
-        public async Task<ActionResult<Call>> CreateCall([FromRoute] string accountSid, [FromBody] CreateCallOptions createCallOptions)
+        [HttpPost(".{ext?}")]
+        public async Task<ActionResult<Call>> CreateCall([FromRoute] string accountSid, [FromRoute] string ext, [FromForm] CreateCallOptions createCallOptions)
         {
             createCallOptions.PathAccountSid = accountSid;
             var call = await TwilioEngine.CreateCall(createCallOptions, "2010-04-01");
             return call;
         }
 
-        [HttpGet("{callSid}.json")]
-        public async Task<ActionResult<Call>> GetCall([FromRoute] string accountSid, [FromRoute] string callSid)
+        [HttpGet("{callSid}.{ext?}")]
+        public async Task<ActionResult<Call>> GetCall([FromRoute] string accountSid, [FromRoute] string callSid, [FromRoute] string ext)
         {
             var options = new FetchCallOptions(callSid) { PathAccountSid = accountSid };
             var call = await TwilioEngine.FetchCall(options);
             return call;
         }
 
-        [HttpGet(".json")]
-        public async Task<ActionResult<CallsPage>> GetCalls()
+        [HttpGet(".{ext?}")]
+        public async Task<ActionResult<CallsPage>> GetCalls([FromRoute] string ext)
         {
             var page = await TwilioEngine.GetCallsPage(Request.GetFullRequestUri());
             return page;
         }
 
-        [HttpPost("{callSid}.json")]
-        public async Task<ActionResult<Call>> UpdateCall([FromRoute] string accountSid, [FromRoute] string callSid, [FromBody] UpdateCallOptions updateCallOptions)
+        [HttpPost("{callSid}.{ext?}")]
+        public async Task<ActionResult<Call>> UpdateCall([FromRoute] string accountSid, [FromRoute] string callSid, [FromRoute] string ext, [FromForm] UpdateCallOptions updateCallOptions)
         {
             updateCallOptions.PathAccountSid = accountSid;
             var call = await TwilioEngine.UpdateCall(callSid, updateCallOptions);
             return call;
         }
 
-        [HttpDelete("{callSid}.json")]
-        public async Task<ActionResult> DeleteCall([FromRoute] string accountSid, [FromRoute] string callSid)
+        [HttpDelete("{callSid}.{ext?}")]
+        public async Task<ActionResult> DeleteCall([FromRoute] string accountSid, [FromRoute] string callSid, [FromRoute] string ext)
         {
             var options = new DeleteCallOptions(callSid) { PathAccountSid = accountSid };
             await TwilioEngine.DeleteCall(options);
