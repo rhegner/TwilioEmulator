@@ -5,16 +5,16 @@ using System.Linq;
 using System.Web;
 using TwilioLogic.Interfaces;
 
-namespace TwilioLogic.TwilioModels
+namespace TwilioEmulator.TwilioModels
 {
-    public class ResourcePage<T>
-        where T: IResource
+    public abstract class ResourcePage<T>
+        where T : IResource
     {
 
         public const int DEFAULT_PAGE_SIZE = 50;
         public const string PAGE_TOKEN_PREFIX = "PA";
 
-        protected ResourcePage(List<T> resources, bool hasMore, Uri currentUrl)
+        protected ResourcePage(IReadOnlyList<T> resources, bool hasMore, Uri currentUrl)
         {
             Resources = resources ?? new List<T>();
 
@@ -74,6 +74,6 @@ namespace TwilioLogic.TwilioModels
         public string NextPageUri { get; }
 
         [JsonIgnore]
-        public List<T> Resources { get; }
+        public IReadOnlyList<T> Resources { get; }
     }
 }

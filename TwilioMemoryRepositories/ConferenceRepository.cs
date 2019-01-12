@@ -3,6 +3,7 @@ using System.Collections.Generic;
 using System.Linq;
 using System.Threading.Tasks;
 using System.Web;
+using TwilioLogic.Models;
 using TwilioLogic.RepositoryInterfaces;
 using TwilioLogic.TwilioModels;
 
@@ -49,22 +50,11 @@ namespace TwilioMemoryRepositories
             }
         }
 
-        public Task<ConferencesPage> GetConferences(Uri url)
+        public Task<PageList<Conference>> GetConferences(DateTime? dateCreatedFilter, DateTime? dateCreatedBeforeFilter, DateTime? dateCreatedAfterFilter,
+            DateTime? dateUpdatedFilter, DateTime? dateUpdatedBeforeFilter, DateTime? dateUpdatedAfterFilter,
+            string friendlyNameFilter, string[] statusFilter,
+            int page, int pageSize, string pageToken)
         {
-            var queryParams = HttpUtility.ParseQueryString(url.Query);
-
-            var dateCreatedFilter = queryParams.GetDateTime("DateCreated");
-            var dateCreatedBeforeFilter = queryParams.GetDateTime("DateCreated<");
-            var dateCreatedAfterFilter = queryParams.GetDateTime("DateCreated>");
-            var dateUpdatedFilter = queryParams.GetDateTime("DateUpdated");
-            var dateUpdatedBeforeFilter = queryParams.GetDateTime("DateUpdated<");
-            var dateUpdatedAfterFilter = queryParams.GetDateTime("DateUpdated>");
-            var friendlyNameFilter = queryParams.Get("FriendlyName");
-            var statusFilter = queryParams.GetStringArray("Status");
-            var page = queryParams.GetPage();
-            var pageSize = queryParams.GetPageSize();
-            var pageToken = queryParams.GetPageToken();
-
             lock (ConferencesLock)
             {
                 IEnumerable<Conference> query = Conferences;
@@ -100,8 +90,8 @@ namespace TwilioMemoryRepositories
 
                 var items = query.ToList();
                 var hasMore = query.Take(1) != null;
-                var callsPage = new ConferencesPage(items, hasMore, url);
-                return Task.FromResult(callsPage);
+                var conferencesList = new PageList<Conference>(items, hasMore);
+                return Task.FromResult(conferencesList);
             }
         }
 

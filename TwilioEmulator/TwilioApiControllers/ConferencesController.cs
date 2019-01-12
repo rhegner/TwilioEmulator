@@ -1,7 +1,7 @@
 ﻿using Microsoft.AspNetCore.Mvc;
+using System;
 using System.Threading.Tasks;
-using Twilio.Rest.Api.V2010.Account;
-using Twilio.Rest.Api.V2010.Account.Conference;
+using TwilioEmulator.TwilioModels;
 using TwilioEmulator.Utils;
 using TwilioLogic;
 using TwilioLogic.TwilioModels;
@@ -10,9 +10,10 @@ namespace TwilioEmulator.TwilioApiControllers
 {
 
     [ApiController]
-    [Route("/2010-04-01/Accounts/{accountSid}/Conferences")]
+    [Route("/" + API_VERSION + "/Accounts/{accountSid}/Conferences")]
     public class ConferencesController : ControllerBase
     {
+        private const string API_VERSION = "2010-04-01";
 
         private readonly TwilioEngine TwilioEngine;
 
@@ -24,54 +25,68 @@ namespace TwilioEmulator.TwilioApiControllers
         [HttpGet("{conferenceSid}.{ext?}")]
         public async Task<ActionResult<Conference>> GetConference([FromRoute] string accountSid, [FromRoute] string conferenceSid, [FromRoute] string ext)
         {
-            var options = new FetchConferenceOptions(conferenceSid) { PathAccountSid = accountSid };
-            var conference = await TwilioEngine.FetchConference(options);
+            if (ext != "json") return NotFound();
+            var conference = await TwilioEngine.GetConference(conferenceSid);
             return conference;
         }
 
         [HttpGet(".json")]
-        public async Task<ActionResult<ConferencesPage>> GetConferences()
+        public async Task<ActionResult<ConferencesPage>> GetConferences([FromRoute] string accountSid, [FromRoute] string ext,
+            [FromQuery] DateTime? DateCreated, [FromQuery(Name = "DateCreated<")] DateTime? DateCreatedBefore, [FromQuery(Name = "DateCreated>")] DateTime? DateCreatedAfter,
+            [FromQuery] DateTime? DateUpdated, [FromQuery(Name = "DateUpdated<")] DateTime? DateUpdatedBefore, [FromQuery(Name = "DateUpdated>")] DateTime? DateUpdatedAfter,
+            [FromQuery] string FriendlyName, [FromQuery] string[] Status,
+            [FromQuery] int Page = 0, [FromQuery] int PageSize = 50, [FromQuery] string PageToken = null)
         {
-            var page = await TwilioEngine.GetConferencesPage(Request.GetFullRequestUri());
-            return page;
+            if (ext != "json") return NotFound();
+            var conferences = await TwilioEngine.GetConferences(DateCreated, DateCreatedBefore, DateCreatedAfter,
+                DateUpdated, DateUpdatedBefore, DateUpdatedAfter,
+                FriendlyName, Status,
+                Page, PageSize, PageToken);
+            var conferencesPage = new ConferencesPage(conferences, conferences.HasMore, Request.GetFullRequestUri());
+            return conferencesPage;
         }
 
         [HttpPost("{conferenceSid}.{ext?}")]
-        public async Task<ActionResult<Conference>> UpdateConference([FromRoute] string accountSid, [FromRoute] string conferenceSid, [FromRoute] string ext, [FromForm] UpdateConferenceOptions updateConferenceOptions)
+        public async Task<ActionResult<Conference>> UpdateConference([FromRoute] string accountSid, [FromRoute] string conferenceSid, [FromRoute] string ext)
         {
-            updateConferenceOptions.PathAccountSid = accountSid;
-            var conference = await TwilioEngine.UpdateConference(conferenceSid, updateConferenceOptions);
+            if (ext != "json") return NotFound();
+            var conference = await TwilioEngine.UpdateConference(conferenceSid);
             return conference;
         }
 
         [HttpGet("{conferenceSid}/Participants/{callSid}.{ext?}")]
         public async Task<ActionResult<ConferenceParticipant>> GetConferenceParticipant([FromRoute] string accountSid, [FromRoute] string conferenceSid, [FromRoute] string callSid, [FromRoute] string ext)
         {
-            var options = new FetchParticipantOptions(conferenceSid, callSid) { PathAccountSid = accountSid };
-            var participant = await TwilioEngine.FetchConferenceParticipant(options);
+            if (ext != "json") return NotFound();
+            var participant = await TwilioEngine.GetConferenceParticipant(conferenceSid, callSid);
             return participant;
         }
 
         [HttpGet("{conferenceSid}/Participants.{ext?}")]
-        public async Task<ActionResult<ConferenceParticipantsPage>> GetConferenceParticipants([FromRoute] string ext)
+        public async Task<ActionResult<ConferenceParticipantsPage>> GetConferenceParticipants([FromRoute] string accountSid, [FromRoute] string conferenceSid, [FromRoute] string ext,
+            [FromQuery] bool? Muted, [FromQuery] bool? Hold,
+            [FromQuery] int Page = 0, [FromQuery] int PageSize = 50, [FromQuery] string PageToken = null)
         {
-            var participants = await TwilioEngine.GetConferenceParticipantsPage(Request.GetFullRequestUri());
-            return participants;
+            if (ext != "json") return NotFound();
+            var participants = await TwilioEngine.GetConferenceParticipants(conferenceSid, Muted, Hold,
+                Page, PageSize, PageToken);
+            var participantsPage = new ConferenceParticipantsPage(participants, participants.HasMore, Request.GetFullRequestUri());
+            return participantsPage;
         }
 
         [HttpPost("{conferenceSid}/Participants/{callSid}.{ext?}")]
-        public async Task<ActionResult<ConferenceParticipant>> UpdateConferenceParticipant([FromRoute] string accountSid, [FromRoute] string conferenceSid, [FromRoute] string callSid, [FromRoute] string ext, [FromForm] UpdateParticipantOptions updateParticipantOptions)
+        public async Task<ActionResult<ConferenceParticipant>> UpdateConferenceParticipant([FromRoute] string accountSid, [FromRoute] string conferenceSid, [FromRoute] string callSid, [FromRoute] string ext)
         {
-            updateParticipantOptions.PathAccountSid = accountSid;
-            var conference = await TwilioEngine.UpdateConferenceParticipant(conferenceSid, callSid, updateParticipantOptions);
+            if (ext != "json") return NotFound();
+            var conference = await TwilioEngine.UpdateConferenceParticipant(conferenceSid, callSid);
             return conference;
         }
 
         [HttpDelete("{conferenceSid}/Participants/{callSid}.{ext?}")]
         public async Task<ActionResult> DeleteConferenceParticipant([FromRoute] string accountSid, [FromRoute] string conferenceSid, [FromRoute] string callSid, [FromRoute] string ext)
         {
-            var options = new DeleteParticipantOptions(conferenceSid, callSid) { PathAccountSid = accountSid };
-            await TwilioEngine.DeleteConferenceParticipant(options);
+            if (ext != "json") return NotFound();
+            await TwilioEngine.DeleteConferenceParticipant(conferenceSid, callSid);
             return NoContent();
         }
 

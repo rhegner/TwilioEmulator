@@ -5,6 +5,7 @@ using System.Text.RegularExpressions;
 using System.Threading.Tasks;
 using System.Web;
 using TwilioLogic.Exceptions;
+using TwilioLogic.Models;
 using TwilioLogic.RepositoryInterfaces;
 using TwilioLogic.TwilioModels;
 
@@ -41,40 +42,18 @@ namespace TwilioMemoryRepositories
             }
         }
 
-        public Task<NotificationsPage> GetNotificationsPage(Uri url)
+        public Task<PageList<Alert>> GetAlerts(string resourceSidFilter, string logLevelFilter, 
+            DateTime? messageDateFilter, DateTime? messageDateBeforeFilter, DateTime? messageDateAfterFilter,
+            int page, int pageSize, string pageToken)
         {
-            string callSidFilter = null;
-
-            var pathMatch = Regex.Match(url.GetComponents(UriComponents.Path, UriFormat.SafeUnescaped), "^\\d{4}-\\d{2}-\\d{2}\\/Accounts\\/AC\\w{32}\\/Calls\\/(?<callId>CA\\w{32})\\/Notifications\\.json$");
-            if (pathMatch.Success)
-            {
-                callSidFilter = pathMatch.Groups["callId"].Value;
-            }
-            else
-            {
-                pathMatch = Regex.Match(url.GetComponents(UriComponents.Path, UriFormat.SafeUnescaped), "^\\d{4}-\\d{2}-\\d{2}\\/Accounts\\/AC\\w{32}\\/Notifications\\.json$");
-                if (!pathMatch.Success)
-                    throw new ArgumentException("Url does not match regex", nameof(url));
-            }
-
-            var queryParams = HttpUtility.ParseQueryString(url.Query);
-
-            var logFilter = queryParams.GetInt("Log");
-            var messageDateFilter = queryParams.GetDateTime("MessageDate");
-            var messageDateBeforeFilter = queryParams.GetDateTime("MessageDate<");
-            var messageDateAfterFilter = queryParams.GetDateTime("MessageDate>");
-            var page = queryParams.GetPage();
-            var pageSize = queryParams.GetPageSize();
-            var pageToken = queryParams.GetPageToken();
-
             lock (AlertsLock)
             {
                 IEnumerable<Alert> query = Alerts;
 
-                if (!string.IsNullOrEmpty(callSidFilter))
-                    query = query.Where(a => a.ResourceSid == callSidFilter);
-                if (logFilter.HasValue)
-                    query = query.Where(a => a.LogLevel == Notification.LogToLogLevel(logFilter.Value));
+                if (!string.IsNullOrEmpty(resourceSidFilter))
+                    query = query.Where(a => a.ResourceSid == resourceSidFilter);
+                if (!string.IsNullOrEmpty(logLevelFilter))
+                    query = query.Where(a => a.LogLevel == logLevelFilter);
                 if (messageDateFilter.HasValue)
                     query = query.Where(a => a.DateGenerated >= messageDateFilter.Value.Date && a.DateGenerated < messageDateFilter.Value.AddDays(1).Date);
                 if (messageDateBeforeFilter.HasValue)
@@ -95,8 +74,8 @@ namespace TwilioMemoryRepositories
 
                 var items = query.ToList();
                 var hasMore = query.Take(1) != null;
-                var callsPage = new NotificationsPage(items.Select (a => new Notification(a)).ToList(), hasMore, url);
-                return Task.FromResult(callsPage);
+                var alertsList = new PageList<Alert>(items, hasMore);
+                return Task.FromResult(alertsList);
             }
         }
 

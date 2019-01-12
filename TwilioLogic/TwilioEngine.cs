@@ -6,8 +6,6 @@ using System.Linq;
 using System.Net.Http;
 using System.Threading.Tasks;
 using System.Web;
-using Twilio.Rest.Api.V2010.Account;
-using Twilio.Rest.Api.V2010.Account.Conference;
 using TwilioLogic.EventModels;
 using TwilioLogic.Models;
 using TwilioLogic.RepositoryInterfaces;
@@ -68,35 +66,40 @@ namespace TwilioLogic
             return call;
         }
 
-        public async Task<Call> CreateCall(CreateCallOptions options, string apiVersion)
+        public async Task<Call> CreateCall(string accountSid, string apiVersion, string from, HttpMethod method, string to, Uri url)
         {
             var call = new Call()
             {
-                AccountSid = options.PathAccountSid,
+                AccountSid = accountSid,
                 ApiVersion = apiVersion,
                 DateCreated = DateTime.UtcNow,
                 DateUpdated = DateTime.UtcNow,
                 Direction = "outbound-api",
-                From = options.From.ToString(),
-                PhoneNumberSid = await AccountRepository.GetPhoneNumberSid(options.From.ToString()),
+                From = from,
+                PhoneNumberSid = await AccountRepository.GetPhoneNumberSid(from),
                 Sid = TwilioUtils.CreateSid("CA"),
-                Status = CallResource.StatusEnum.Queued.ToString(),
-                To = options.To.ToString()
+                Status = "queued",
+                To = to
             };
             await CallRepository.CreateCall(call);
             CallCudOperation?.Invoke(this, new ResourceCudOperationEventArgs<Call>(call, ResourceCudOperation.Create));
-            CallHandler(options.Url, new HttpMethod(options.Method.ToString()), call.Sid);
+            CallHandler(url, method, call.Sid);
             return call;
         }
 
-        public Task<Call> FetchCall(FetchCallOptions options)
-            => CallRepository.GetCall(options.PathSid);
+        public Task<Call> GetCall(string callSid)
+            => CallRepository.GetCall(callSid);
 
-        public Task<CallsPage> GetCallsPage(Uri url)
-            => CallRepository.GetCalls(url);
+        public Task<PageList<Call>> GetCalls(string toFilter, string fromFilter, string parentCallSidFilter, string[] statusFilter,
+            DateTime? startTimeFilter, DateTime? startTimeBeforeFilter, DateTime? startTimeAfterFilter,
+            DateTime? endTimeFilter, DateTime? endTimeBeforeFilter, DateTime? endTimeAfterFilter,
+            int page, int pageSize, string pageToken)
+            => CallRepository.GetCalls(toFilter, fromFilter, parentCallSidFilter, statusFilter,
+                startTimeFilter, startTimeBeforeFilter, startTimeAfterFilter,
+                endTimeFilter, endTimeBeforeFilter, endTimeAfterFilter,
+                page, pageSize, pageToken);
 
-        // we need to pass in callSid separately, because we can't write it from the controller action
-        public async Task<Call> UpdateCall(string callSid, UpdateCallOptions options)
+        public async Task<Call> UpdateCall(string callSid)
         {
             var call = await CallRepository.GetCall(callSid);
             // TODO: update
@@ -104,10 +107,10 @@ namespace TwilioLogic
             return call;
         }
 
-        public async Task DeleteCall(DeleteCallOptions options)
+        public async Task DeleteCall(string callSid)
         {
-            var call = await CallRepository.GetCall(options.PathSid);
-            if (call.Status == CallResource.StatusEnum.InProgress.ToString())
+            var call = await CallRepository.GetCall(callSid);
+            if (call.Status == "in-progress")
                 throw new InvalidOperationException("Can't delete a call which is in progress");
             await CallRepository.DeleteCall(call.Sid);
             CallCudOperation?.Invoke(this, new ResourceCudOperationEventArgs<Call>(call, ResourceCudOperation.Delete));
@@ -117,14 +120,19 @@ namespace TwilioLogic
 
         #region public conference interface
 
-        public Task<Conference> FetchConference(FetchConferenceOptions options)
-            => ConferenceRepository.GetConference(options.PathSid);
+        public Task<Conference> GetConference(string conferenceSid)
+            => ConferenceRepository.GetConference(conferenceSid);
 
-        public Task<ConferencesPage> GetConferencesPage(Uri url)
-            => ConferenceRepository.GetConferences(url);
+        public Task<PageList<Conference>> GetConferences(DateTime? dateCreatedFilter, DateTime? dateCreatedBeforeFilter, DateTime? dateCreatedAfterFilter,
+            DateTime? dateUpdatedFilter, DateTime? dateUpdatedBeforeFilter, DateTime? dateUpdatedAfterFilter,
+            string friendlyNameFilter, string[] statusFilter,
+            int page, int pageSize, string pageToken)
+            => ConferenceRepository.GetConferences(dateCreatedFilter, dateCreatedBeforeFilter, dateCreatedAfterFilter,
+                dateUpdatedFilter, dateUpdatedBeforeFilter, dateUpdatedAfterFilter,
+                friendlyNameFilter, statusFilter,
+                page, pageSize, pageToken);
 
-        // we need to pass in conferenceSid separately, because we can't write it from the controller action
-        public async Task<Conference> UpdateConference(string conferenceSid, UpdateConferenceOptions options)
+        public async Task<Conference> UpdateConference(string conferenceSid)
         {
             var conference = await ConferenceRepository.GetConference(conferenceSid);
             // TODO: update
@@ -132,14 +140,15 @@ namespace TwilioLogic
             return conference;
         }
 
-        public Task<ConferenceParticipant> FetchConferenceParticipant(FetchParticipantOptions options)
-            => ConferenceParticipantRepository.GetConferenceParticipant(options.PathConferenceSid, options.PathCallSid);
+        public Task<ConferenceParticipant> GetConferenceParticipant(string conferenceSid, string callSid)
+            => ConferenceParticipantRepository.GetConferenceParticipant(conferenceSid, callSid);
 
-        public Task<ConferenceParticipantsPage> GetConferenceParticipantsPage(Uri url)
-            => ConferenceParticipantRepository.GetConferenceParticipants(url);
+        public Task<PageList<ConferenceParticipant>> GetConferenceParticipants(string conferenceSidFilter, bool? mutedFilter, bool? holdFilter,
+            int page, int pageSize, string pageToken)
+            => ConferenceParticipantRepository.GetConferenceParticipants(conferenceSidFilter, mutedFilter, holdFilter,
+                page, pageSize, pageToken);
 
-        // we need to pass in conferenceSid and callSid separately, because we can't write it from the controller action
-        public async Task<ConferenceParticipant> UpdateConferenceParticipant(string conferenceSid, string callSid, UpdateParticipantOptions options)
+        public async Task<ConferenceParticipant> UpdateConferenceParticipant(string conferenceSid, string callSid)
         {
             var participant = await ConferenceParticipantRepository.GetConferenceParticipant(conferenceSid, callSid);
             // TODO: apply logic
@@ -147,11 +156,11 @@ namespace TwilioLogic
             return participant;
         }
 
-        public async Task DeleteConferenceParticipant(DeleteParticipantOptions options)
+        public async Task DeleteConferenceParticipant(string conferenceSid, string callSid)
         {
-            var participant = await ConferenceParticipantRepository.GetConferenceParticipant(options.PathConferenceSid, options.PathCallSid);
+            var participant = await ConferenceParticipantRepository.GetConferenceParticipant(conferenceSid, callSid);
             // TODO: apply logic
-            await ConferenceParticipantRepository.DeleteConferenceParticipant(options.PathConferenceSid, options.PathCallSid);
+            await ConferenceParticipantRepository.DeleteConferenceParticipant(conferenceSid, callSid);
             ConferenceParticipantCudOperation?.Invoke(this, new ResourceCudOperationEventArgs<ConferenceParticipant>(participant, ResourceCudOperation.Delete));
         }
 
@@ -159,11 +168,15 @@ namespace TwilioLogic
 
         #region public alert interface
 
-        public async Task<Notification> FetchNotification(string alertSid)
+        public async Task<Notification> GetAlert(string alertSid)
             => new Notification(await AlertRepository.GetAlert(alertSid));
 
-        public Task<NotificationsPage> GetNotificationsPage(Uri url)
-            => AlertRepository.GetNotificationsPage(url);
+        public Task<PageList<Alert>> GetAlerts(string resourceSidFilter, string logLevelFilter,
+            DateTime? messageDateFilter, DateTime? messageDateBeforeFilter, DateTime? messageDateAfterFilter,
+            int page, int pageSize, string pageToken)
+            => AlertRepository.GetAlerts(resourceSidFilter, logLevelFilter,
+                messageDateFilter, messageDateBeforeFilter, messageDateAfterFilter,
+                page, pageSize, pageToken);
 
         public async Task DeleteAlert(string alertSid)
         {

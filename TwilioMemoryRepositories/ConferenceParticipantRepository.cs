@@ -5,6 +5,7 @@ using System.Text.RegularExpressions;
 using System.Threading.Tasks;
 using System.Web;
 using TwilioLogic.Exceptions;
+using TwilioLogic.Models;
 using TwilioLogic.RepositoryInterfaces;
 using TwilioLogic.TwilioModels;
 
@@ -45,28 +46,15 @@ namespace TwilioMemoryRepositories
             }
         }
 
-        public Task<ConferenceParticipantsPage> GetConferenceParticipants(Uri url)
+        public Task<PageList<ConferenceParticipant>> GetConferenceParticipants(string conferenceSidFilter, bool? mutedFilter, bool? holdFilter,
+            int page, int pageSize, string pageToken)
         {
-            var path = url.GetComponents(UriComponents.Path, UriFormat.SafeUnescaped);
-            var pathMatch = Regex.Match(path, "^\\d{4}-\\d{2}-\\d{2}\\/Accounts\\/AC\\w{32}\\/Conferences\\/(?<confId>CF\\w{32})\\/Participants\\.json$");
-            if (!pathMatch.Success)
-                throw new ArgumentException("Url does not match regex", nameof(url));
-            var conferenceSid = pathMatch.Groups["confId"].Value;
-
-            var queryParams = HttpUtility.ParseQueryString(url.Query);
-
-            var mutedFilter = queryParams.GetBool("Muted");
-            var holdFilter = queryParams.GetBool("Hold");
-            var page = queryParams.GetPage();
-            var pageSize = queryParams.GetPageSize();
-            var pageToken = queryParams.GetPageToken();
-
             lock (ParticipantsLock)
             {
                 IEnumerable<ConferenceParticipant> query = Participants;
 
-                query = query.Where(p => p.ConferenceSid == conferenceSid);
-
+                if (!string.IsNullOrEmpty(conferenceSidFilter))
+                    query = query.Where(p => p.ConferenceSid == conferenceSidFilter);
                 if (mutedFilter.HasValue)
                     query = query.Where(p => p.Muted == mutedFilter.Value);
                 if (holdFilter.HasValue)
@@ -85,8 +73,8 @@ namespace TwilioMemoryRepositories
 
                 var items = query.ToList();
                 var hasMore = query.Take(1) != null;
-                var callsPage = new ConferenceParticipantsPage(items, hasMore, url);
-                return Task.FromResult(callsPage);
+                var participantsList = new PageList<ConferenceParticipant>(items, hasMore);
+                return Task.FromResult(participantsList);
             }
         }
 

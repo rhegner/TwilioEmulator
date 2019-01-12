@@ -1,5 +1,5 @@
-﻿using System;
-using System.Threading.Tasks;
+﻿using System.Threading.Tasks;
+using TwilioLogic.Models;
 using TwilioLogic.TwilioModels;
 
 namespace TwilioLogic.RepositoryInterfaces
@@ -10,7 +10,8 @@ namespace TwilioLogic.RepositoryInterfaces
 
         Task<ConferenceParticipant> GetConferenceParticipant(string conferenceSid, string callSid);
 
-        Task<ConferenceParticipantsPage> GetConferenceParticipants(Uri url);
+        Task<PageList<ConferenceParticipant>> GetConferenceParticipants(string conferenceSidFilter, bool? mutedFilter, bool? holdFilter,
+            int page, int pageSize, string pageToken);
 
         Task UpdateConferenceParticipant(ConferenceParticipant call);
 

@@ -1,5 +1,6 @@
 ﻿using System;
 using System.Threading.Tasks;
+using TwilioLogic.Models;
 using TwilioLogic.TwilioModels;
 
 namespace TwilioLogic.RepositoryInterfaces
@@ -10,7 +11,10 @@ namespace TwilioLogic.RepositoryInterfaces
 
         Task<Call> GetCall(string callSid);
 
-        Task<CallsPage> GetCalls(Uri url);
+        Task<PageList<Call>> GetCalls(string toFilter, string fromFilter, string parentCallSidFilter, string[] statusFilter,
+            DateTime? startTimeFilter, DateTime? startTimeBeforeFilter, DateTime? startTimeAfterFilter,
+            DateTime? endTimeFilter, DateTime? endTimeBeforeFilter, DateTime? endTimeAfterFilter,
+            int page, int pageSize, string pageToken);
 
         Task UpdateCall(Call call);
 

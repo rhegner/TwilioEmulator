@@ -4,6 +4,7 @@ using System.Linq;
 using System.Threading.Tasks;
 using System.Web;
 using TwilioLogic.Exceptions;
+using TwilioLogic.Models;
 using TwilioLogic.RepositoryInterfaces;
 using TwilioLogic.TwilioModels;
 
@@ -40,24 +41,11 @@ namespace TwilioMemoryRepositories
             }
         }
 
-        public Task<CallsPage> GetCalls(Uri url)
+        public Task<PageList<Call>> GetCalls(string toFilter, string fromFilter, string parentCallSidFilter, string[] statusFilter,
+            DateTime? startTimeFilter, DateTime? startTimeBeforeFilter, DateTime? startTimeAfterFilter,
+            DateTime? endTimeFilter, DateTime? endTimeBeforeFilter, DateTime? endTimeAfterFilter,
+            int page, int pageSize, string pageToken)
         {
-            var queryParams = HttpUtility.ParseQueryString(url.Query);
-
-            var toFilter = queryParams.Get("To");
-            var fromFilter = queryParams.Get("From");
-            var parentCallSidFilter = queryParams.Get("ParentCallSid");
-            var statusFilter = queryParams.GetStringArray("Status");
-            var startTimeFilter = queryParams.GetDateTime("StartTime");
-            var startTimeBeforeFilter = queryParams.GetDateTime("StartTime<");
-            var startTimeAfterFilter = queryParams.GetDateTime("StartTime>");
-            var endTimeFilter = queryParams.GetDateTime("EndTime");
-            var endTimeBeforeFilter = queryParams.GetDateTime("EndTime<");
-            var endTimeAfterFilter = queryParams.GetDateTime("EndTime>");
-            var page = queryParams.GetPage();
-            var pageSize = queryParams.GetPageSize();
-            var pageToken = queryParams.GetPageToken();
-
             lock (CallsLock)
             {
                 IEnumerable<Call> query = Calls;
@@ -97,8 +85,8 @@ namespace TwilioMemoryRepositories
 
                 var items = query.ToList();
                 var hasMore = query.Take(1) != null;
-                var callsPage = new CallsPage(items, hasMore, url);
-                return Task.FromResult(callsPage);
+                var callsList = new PageList<Call>(items, hasMore);
+                return Task.FromResult(callsList);
             }
         }
 
