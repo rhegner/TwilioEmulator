@@ -30,7 +30,9 @@ namespace TwilioEmulator.Services
         {
             TwilioEngine.CallCudOperation += TwilioEngine_CudOperation;
             TwilioEngine.ConferenceCudOperation += TwilioEngine_CudOperation;
-            TwilioEngine.NewActivityLog += TwilioEngine_NewActivityLog;
+            TwilioEngine.ConferenceParticipantCudOperation += TwilioEngine_CudOperation;
+            TwilioEngine.AlertCudOperation += TwilioEngine_CudOperation;
+            TwilioEngine.ActivityLogCudOperation += TwilioEngine_CudOperation;
             return Task.CompletedTask;
         }
 
@@ -38,7 +40,9 @@ namespace TwilioEmulator.Services
         {
             TwilioEngine.CallCudOperation -= TwilioEngine_CudOperation;
             TwilioEngine.ConferenceCudOperation -= TwilioEngine_CudOperation;
-            TwilioEngine.NewActivityLog -= TwilioEngine_NewActivityLog;
+            TwilioEngine.ConferenceParticipantCudOperation -= TwilioEngine_CudOperation;
+            TwilioEngine.AlertCudOperation -= TwilioEngine_CudOperation;
+            TwilioEngine.ActivityLogCudOperation -= TwilioEngine_CudOperation;
             return Task.CompletedTask;
         }
 
@@ -56,22 +60,6 @@ namespace TwilioEmulator.Services
             catch (Exception ex)
             {
                 Logger.LogError(ex, "Could not send CUD operation notifications");
-            }
-        }
-
-        private async void TwilioEngine_NewActivityLog(object sender, TwilioLogic.EventModels.NewActivityLogEventArgs e)
-        {
-            try
-            {
-                using (var scope = ServiceScopeFactory.CreateScope())
-                {
-                    var hubContext = scope.ServiceProvider.GetRequiredService<IHubContext<ActivityLogsHub, IActivityLogsClient>>();
-                    await hubContext.Clients.All.NewActivityLog(e.ActivityLog);
-                }
-            }
-            catch (Exception ex)
-            {
-                Logger.LogError(ex, "Could not send new activity log notifications");
             }
         }
 

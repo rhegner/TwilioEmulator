@@ -7,6 +7,7 @@ using Microsoft.Extensions.DependencyInjection;
 using TwilioEmulator.Hubs;
 using TwilioEmulator.Services;
 using TwilioLogic;
+using TwilioLogic.Models;
 using TwilioLogic.RepositoryInterfaces;
 using TwilioLogic.TwilioModels;
 using TwilioMemoryRepositories;
@@ -66,7 +67,8 @@ namespace TwilioEmulator
                 routes.MapHub<ResourceCudNotificationHub<Conference>>("/hubs/conferences");
                 routes.MapHub<ResourceCudNotificationHub<ConferenceParticipant>>("/hubs/conferenceparticipants");
                 routes.MapHub<ResourceCudNotificationHub<Notification>>("/hubs/notifications");
-                routes.MapHub<ActivityLogsHub>("/hubs/activitylogs");
+                routes.MapHub<ResourceCudNotificationHub<Alert>>("/hubs/alerts");
+                routes.MapHub<ResourceCudNotificationHub<ActivityLog>>("/hubs/activitylogs");
             });
 
             app.UseMvc(routes =>

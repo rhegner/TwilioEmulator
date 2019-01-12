@@ -8,5 +8,6 @@ namespace TwilioLogic.RepositoryInterfaces
     {
         Task CreateActivityLog(ActivityLog activityLog);
         Task<List<ActivityLog>> GetActivityLogsForResource(string sid);
+        Task Clear();
     }
 }

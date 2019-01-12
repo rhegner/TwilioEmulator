@@ -1,6 +1,4 @@
 ﻿using Microsoft.AspNetCore.Mvc;
-using System;
-using System.Net.Http;
 using System.Threading.Tasks;
 using TwilioLogic;
 using TwilioLogic.TwilioModels;
@@ -21,9 +19,9 @@ namespace TwilioEmulator.ApiControllers
         }
 
         [HttpPost("Incoming")]
-        public async Task<ActionResult<Call>> CreateIncomingCall([FromForm] string from, [FromForm] string to, [FromForm] Uri url, [FromForm] string httpMethod = "post")
+        public async Task<ActionResult<Call>> CreateIncomingCall([FromForm] string from, [FromForm] string to, [FromForm] string url, [FromForm] string method)
         {
-            var call = await TwilioEngine.CreateIncomingCall(from, to, url, new HttpMethod(httpMethod));
+            var call = await TwilioEngine.CreateIncomingCall(from, to, url, method);
             return call;
         }
 

@@ -18,5 +18,7 @@ namespace TwilioLogic.RepositoryInterfaces
 
         Task DeleteAlert(string alertSid);
 
+        Task Clear();
+
     }
 }

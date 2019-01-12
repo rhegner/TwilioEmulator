@@ -11,7 +11,7 @@ namespace TestClient
         {
 
             TwilioClient.Init("username", "password");
-            TwilioClient.SetRestClient(new TwilioEmulatorRestClient(TwilioClient.GetRestClient(), new Uri("http://localhost:58174")));
+            TwilioClient.SetRestClient(new TwilioEmulatorRestClient(TwilioClient.GetRestClient(), new Uri("http://localhost:5000")));
 
             var call = CallResource.Create(new PhoneNumber("12345"), new PhoneNumber("34567"));
 

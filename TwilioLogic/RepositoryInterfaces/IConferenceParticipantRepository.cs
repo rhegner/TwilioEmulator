@@ -16,5 +16,7 @@ namespace TwilioLogic.RepositoryInterfaces
         Task UpdateConferenceParticipant(ConferenceParticipant call);
 
         Task DeleteConferenceParticipant(string conferenceSid, string callSid);
+
+        Task Clear();
     }
 }

@@ -9,5 +9,6 @@ namespace TwilioLogic.RepositoryInterfaces
 
         Task<string> GetPhoneNumberSid(string phoneNumber);
 
+        Task Clear();
     }
 }

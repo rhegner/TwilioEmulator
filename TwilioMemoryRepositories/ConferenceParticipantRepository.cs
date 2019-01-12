@@ -113,5 +113,14 @@ namespace TwilioMemoryRepositories
             }
             return Task.CompletedTask;
         }
+
+        public Task Clear()
+        {
+            lock (ParticipantsLock)
+            {
+                Participants.Clear();
+            }
+            return Task.CompletedTask;
+        }
     }
 }

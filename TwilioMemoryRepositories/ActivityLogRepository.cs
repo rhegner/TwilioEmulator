@@ -11,18 +11,24 @@ namespace TwilioMemoryRepositories
     public class ActivityLogRepository : IActivityLogRepository
     {
 
-        private readonly ConcurrentDictionary<Guid, ActivityLog> Logs = new ConcurrentDictionary<Guid, ActivityLog>();
+        private readonly ConcurrentDictionary<string, ActivityLog> Logs = new ConcurrentDictionary<string, ActivityLog>();
 
         public Task CreateActivityLog(ActivityLog activityLog)
         {
-            if (!Logs.TryAdd(activityLog.ActivityLogId, activityLog))
-                throw new InvalidOperationException($"{activityLog.ActivityLogId} already exists");
+            if (!Logs.TryAdd(activityLog.Sid, activityLog))
+                throw new InvalidOperationException($"{activityLog.Sid} already exists");
             return Task.CompletedTask;
         }
 
         public Task<List<ActivityLog>> GetActivityLogsForResource(string sid)
         {
             return Task.FromResult(Logs.Values.Where(al => al.Sid == sid).OrderBy(ac => ac.Timestamp).ToList());
+        }
+
+        public Task Clear()
+        {
+            Logs.Clear();
+            return Task.CompletedTask;
         }
     }
 }

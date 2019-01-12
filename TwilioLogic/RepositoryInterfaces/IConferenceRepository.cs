@@ -18,5 +18,7 @@ namespace TwilioLogic.RepositoryInterfaces
             int page, int pageSize, string pageToken);
         
         Task UpdateConference(Conference conference);
+
+        Task Clear();
     }
 }

@@ -11,7 +11,7 @@ namespace TwilioEmulator.TwilioApiControllers
 {
 
     [ApiController]
-    [Route("/" + API_VERSION + "/Accounts/{accountSid}/Calls")]
+    [Route("/" + API_VERSION + "/Accounts/{accountSid}")]
     public class CallsController : ControllerBase
     {
         private const string API_VERSION = "2010-04-01";
@@ -23,31 +23,28 @@ namespace TwilioEmulator.TwilioApiControllers
             TwilioEngine = twilioEngine;
         }
 
-        [HttpPost(".{ext?}")]
-        public async Task<ActionResult<Call>> CreateCall([FromRoute] string accountSid, [FromRoute] string ext,
-            [FromForm] string From, [FromForm] string Method, [FromForm] string To, [FromForm] string url)
+        [HttpPost("Calls.json")]
+        public async Task<ActionResult<Call>> CreateCall([FromRoute] string accountSid,
+            [FromForm] string From, [FromForm] string Method, [FromForm] string To, [FromForm] string Url)
         {
-            if (ext != "json") return NotFound();
-            var call = await TwilioEngine.CreateCall(accountSid, API_VERSION, From, new HttpMethod(Method), To, new Uri(url));
+            var call = await TwilioEngine.CreateCall(accountSid, API_VERSION, From, Method, To, Url);
             return call;
         }
 
-        [HttpGet("{callSid}.{ext?}")]
-        public async Task<ActionResult<Call>> GetCall([FromRoute] string accountSid, [FromRoute] string callSid, [FromRoute] string ext)
+        [HttpGet("Calls/{callSid}.json")]
+        public async Task<ActionResult<Call>> GetCall([FromRoute] string accountSid, [FromRoute] string callSid)
         {
-            if (ext != "json") return NotFound();
             var call = await TwilioEngine.GetCall(callSid);
             return call;
         }
 
-        [HttpGet(".{ext?}")]
-        public async Task<ActionResult<CallsPage>> GetCalls([FromRoute] string accountSid, [FromRoute] string ext,
+        [HttpGet("Calls.json")]
+        public async Task<ActionResult<CallsPage>> GetCalls([FromRoute] string accountSid,
             [FromQuery] string To, [FromQuery] string From, [FromQuery] string ParentCallSid, [FromQuery] string[] Status,
             [FromQuery] DateTime? StartTime, [FromQuery(Name = "StartTime<")] DateTime? StartTimeBefore, [FromQuery(Name = "StartTime>")] DateTime? StartTimeAfter,
             [FromQuery] DateTime? EndTime, [FromQuery(Name = "EndTime<")] DateTime? EndTimeBefore, [FromQuery(Name = "EndTime>")] DateTime? EndTimeAfter,
             [FromQuery] int Page = 0, [FromQuery] int PageSize = 50, [FromQuery] string PageToken = null)
         {
-            if (ext != "json") return NotFound();
             var calls = await TwilioEngine.GetCalls(To, From, ParentCallSid, Status,
                 StartTime, StartTimeBefore, StartTimeAfter,
                 EndTime, EndTimeBefore, EndTimeAfter,
@@ -56,18 +53,16 @@ namespace TwilioEmulator.TwilioApiControllers
             return callsPage;
         }
 
-        [HttpPost("{callSid}.{ext?}")]
-        public async Task<ActionResult<Call>> UpdateCall([FromRoute] string accountSid, [FromRoute] string callSid, [FromRoute] string ext)
+        [HttpPost("Calls/{callSid}.json")]
+        public async Task<ActionResult<Call>> UpdateCall([FromRoute] string accountSid, [FromRoute] string callSid)
         {
-            if (ext != "json") return NotFound();
             var call = await TwilioEngine.UpdateCall(callSid);
             return call;
         }
 
-        [HttpDelete("{callSid}.{ext?}")]
-        public async Task<ActionResult> DeleteCall([FromRoute] string accountSid, [FromRoute] string callSid, [FromRoute] string ext)
+        [HttpDelete("Calls/{callSid}.json")]
+        public async Task<ActionResult> DeleteCall([FromRoute] string accountSid, [FromRoute] string callSid)
         {
-            if (ext != "json") return NotFound();
             await TwilioEngine.DeleteCall(callSid);
             return NoContent();
         }

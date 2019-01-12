@@ -22,5 +22,11 @@ namespace TwilioMemoryRepositories
         public Task<string> GetPhoneNumberSid(string phoneNumber)
             => Task.FromResult(PhoneNumberSids.GetOrAdd(phoneNumber, (_) => TwilioUtils.CreateSid("PN")));
 
+        public Task Clear()
+        {
+            PhoneNumberSids.Clear();
+            return Task.CompletedTask;
+        }
+
     }
 }

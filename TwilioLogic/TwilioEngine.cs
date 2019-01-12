@@ -30,8 +30,8 @@ namespace TwilioLogic
         public event EventHandler<ResourceCudOperationEventArgs<ConferenceParticipant>> ConferenceParticipantCudOperation;
         public event EventHandler<ResourceCudOperationEventArgs<Alert>> AlertCudOperation;
 
-        public event EventHandler<NewActivityLogEventArgs> NewActivityLog;
-
+        public event EventHandler<ResourceCudOperationEventArgs<ActivityLog>> ActivityLogCudOperation;
+        
         public TwilioEngine(IAccountRepository accountRepository, ICallRepository callRepository, IConferenceRepository conferenceRepository, IConferenceParticipantRepository conferenceParticipantRepository,
             IAlertRepository alertRepository, IActivityLogRepository activityLogRepository, ILogger<TwilioEngine> logger)
         {
@@ -44,9 +44,29 @@ namespace TwilioLogic
             Logger = logger;
         }
 
+        public async Task ClearDatabase()
+        {
+            await AccountRepository.Clear();
+
+            await CallRepository.Clear();
+            CallCudOperation?.Invoke(this, new ResourceCudOperationEventArgs<Call>(null, ResourceCudOperation.Reset));
+
+            await ConferenceRepository.Clear();
+            ConferenceCudOperation?.Invoke(this, new ResourceCudOperationEventArgs<Conference>(null, ResourceCudOperation.Reset));
+
+            await ConferenceParticipantRepository.Clear();
+            ConferenceParticipantCudOperation?.Invoke(this, new ResourceCudOperationEventArgs<ConferenceParticipant>(null, ResourceCudOperation.Reset));
+
+            await AlertRepository.Clear();
+            AlertCudOperation?.Invoke(this, new ResourceCudOperationEventArgs<Alert>(null, ResourceCudOperation.Reset));
+
+            await ActivityLogRepository.Clear();
+            ActivityLogCudOperation?.Invoke(this, new ResourceCudOperationEventArgs<ActivityLog>(null, ResourceCudOperation.Reset));
+        }
+
         #region public call interface
 
-        public async Task<Call> CreateIncomingCall(string from, string to, Uri url, HttpMethod httpMethod)
+        public async Task<Call> CreateIncomingCall(string from, string to, string url, string method)
         {
             var call = new Call()
             {
@@ -62,11 +82,11 @@ namespace TwilioLogic
             };
             await CallRepository.CreateCall(call);
             CallCudOperation?.Invoke(this, new ResourceCudOperationEventArgs<Call>(call, ResourceCudOperation.Create));
-            CallHandler(url, httpMethod, call.Sid);
+            CallHandler(url, method, call.Sid);
             return call;
         }
 
-        public async Task<Call> CreateCall(string accountSid, string apiVersion, string from, HttpMethod method, string to, Uri url)
+        public async Task<Call> CreateCall(string accountSid, string apiVersion, string from, string method, string to, string url)
         {
             var call = new Call()
             {
@@ -196,8 +216,13 @@ namespace TwilioLogic
 
         #region private implementation
 
-        private async void CallHandler(Uri url, HttpMethod httpMethod, string callSid)
+        private async void CallHandler(string url, string httpMethod, string callSid)
         {
+            if (string.IsNullOrEmpty(url))
+                return;
+            if (string.IsNullOrEmpty(httpMethod))
+                httpMethod = "POST";
+
             try
             {
                 // TODO:
@@ -226,16 +251,15 @@ namespace TwilioLogic
                 callParams.Add("ParentCallSid", call.ParentCallSid);
 
                 HttpRequestMessage request;
-                if (httpMethod == HttpMethod.Get)
+                if (httpMethod.Equals("GET", StringComparison.InvariantCultureIgnoreCase))
                 {
                     var uriBuilder = new UriBuilder(url);
                     var queryParams = HttpUtility.ParseQueryString(uriBuilder.Query);
                     queryParams.Add(callParams);
                     uriBuilder.Query = queryParams.ToString();
-                    url = uriBuilder.Uri;
-                    request = new HttpRequestMessage(HttpMethod.Get, url);
+                    request = new HttpRequestMessage(HttpMethod.Get, uriBuilder.Uri);
                 }
-                else if (httpMethod == HttpMethod.Post)
+                if (httpMethod.Equals("POST", StringComparison.InvariantCultureIgnoreCase))
                 {
                     request = new HttpRequestMessage(HttpMethod.Post, url);
                     request.Content = new FormUrlEncodedContent(callParams.AllKeys.Select(k => new KeyValuePair<string, string>(k, callParams[k])));

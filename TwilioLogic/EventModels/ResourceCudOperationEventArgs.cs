@@ -5,9 +5,10 @@ namespace TwilioLogic.EventModels
 {
     public enum ResourceCudOperation
     {
-        Create = 0,
-        Update = 1,
-        Delete = 2
+        Reset = 0,
+        Create = 1,
+        Update = 2,
+        Delete = 3,
     }
 
     public class ResourceCudOperationEventArgs<T> : EventArgs

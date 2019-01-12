@@ -19,5 +19,7 @@ namespace TwilioLogic.RepositoryInterfaces
         Task UpdateCall(Call call);
 
         Task DeleteCall(string callSid);
+
+        Task Clear();
     }
 }
