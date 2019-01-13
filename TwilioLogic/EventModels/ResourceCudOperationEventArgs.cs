@@ -12,10 +12,26 @@ namespace TwilioLogic.EventModels
     }
 
     public class ResourceCudOperationEventArgs<T> : EventArgs
-        where T: IResource
+        where T: class, IResource
     {
+        public ResourceCudOperationEventArgs()
+        {
+            Resource = null;
+            Operation = ResourceCudOperation.Reset;
+        }
+
         public ResourceCudOperationEventArgs(T resource, ResourceCudOperation operation)
         {
+            if (operation == ResourceCudOperation.Reset)
+            {
+                if (resource != null)
+                    throw new ArgumentException("Resource must be null for Reset operation.");
+            }
+            else
+            {
+                if (resource == null)
+                    throw new ArgumentException("Resource must not be null for all operations except for Reset");
+            }
             Resource = resource;
             Operation = operation;
         }

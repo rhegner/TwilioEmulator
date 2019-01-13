@@ -48,7 +48,7 @@ namespace TwilioEmulator.TwilioApiControllers
             var calls = await TwilioEngine.GetCalls(To, From, ParentCallSid, Status,
                 StartTime, StartTimeBefore, StartTimeAfter,
                 EndTime, EndTimeBefore, EndTimeAfter,
-                Page, PageSize, PageToken);
+                Page, PageSize, CallsPage.TrimTokenPrefix(PageToken));
             var callsPage = new CallsPage(calls, calls.HasMore, Request.GetFullRequestUri());
             return callsPage;
         }

@@ -21,7 +21,7 @@ namespace TwilioEmulator.TwilioModels
             if (currentUrl != null)
             {
                 var previousPageToken = (Resources.Count > 0) ? PAGE_TOKEN_PREFIX + Resources.First().GetSid() : null;
-                var nextPageToken = (Resources.Count > 0 && hasMore) ? PAGE_TOKEN_PREFIX + Resources.Last().GetSid() : null;
+                var nextPageToken = (Resources.Count > 0) ? PAGE_TOKEN_PREFIX + Resources.Last().GetSid() : null;
 
                 var uriBuilder = new UriBuilder(currentUrl);
                 var queryParams = HttpUtility.ParseQueryString(uriBuilder.Query);
@@ -52,12 +52,12 @@ namespace TwilioEmulator.TwilioModels
                     PreviousPageUri = uriBuilder.Uri.GetComponents(UriComponents.PathAndQuery, UriFormat.SafeUnescaped);
                 }
 
-                if (!string.IsNullOrEmpty(nextPageToken))
+                if (hasMore && !string.IsNullOrEmpty(nextPageToken))
                 {
                     queryParams.Set("Page", (Page + 1).ToString());
                     queryParams.Set("PageToken", nextPageToken);
                     uriBuilder.Query = queryParams.ToString();
-                    PreviousPageUri = uriBuilder.Uri.GetComponents(UriComponents.PathAndQuery, UriFormat.SafeUnescaped);
+                    NextPageUri = uriBuilder.Uri.GetComponents(UriComponents.PathAndQuery, UriFormat.SafeUnescaped);
                 }
 
             }
@@ -75,5 +75,15 @@ namespace TwilioEmulator.TwilioModels
 
         [JsonIgnore]
         public IReadOnlyList<T> Resources { get; }
+
+
+        public static string TrimTokenPrefix(string pageToken)
+        {
+            if (pageToken == null)
+                return null;
+            if (!pageToken.StartsWith(PAGE_TOKEN_PREFIX))
+                throw new ArgumentException($"Unexpected page token {pageToken}");
+            return pageToken.Substring(2);
+        }
     }
 }

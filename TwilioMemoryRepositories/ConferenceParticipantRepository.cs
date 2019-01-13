@@ -60,19 +60,19 @@ namespace TwilioMemoryRepositories
                 if (holdFilter.HasValue)
                     query = query.Where(p => p.Hold == holdFilter.Value);
 
-                query = query.OrderBy(p => p.DateCreated);
+                query = query.OrderByDescending(p => p.DateCreated);
 
+                List<ConferenceParticipant> items = null;
                 if (page == 0 && string.IsNullOrEmpty(pageToken))
-                    query = query.Take(pageSize);
+                    items = query.Take(pageSize).ToList();
                 else if (page == 0 && !string.IsNullOrEmpty(pageToken))
-                    query = query.TakeWhile(c => c.CallSid != pageToken).TakeLast(pageSize);
+                    items = query.TakeWhile(c => c.CallSid != pageToken).TakeLast(pageSize).ToList();
                 else if (page > 0 && !string.IsNullOrEmpty(pageToken))
-                    query = query.SkipWhile(c => c.CallSid != pageToken).Skip(1).Take(pageSize);
+                    items = query.SkipWhile(c => c.CallSid != pageToken).Skip(1).Take(pageSize).ToList();
                 else
                     throw new Exception($"Invalid paging with page={page}, pageSize={pageSize}, pageToken={pageToken}");
 
-                var items = query.ToList();
-                var hasMore = query.Take(1) != null;
+                var hasMore = items.Count > 0 && items.Last() != query.Last();
                 var participantsList = new PageList<ConferenceParticipant>(items, hasMore);
                 return Task.FromResult(participantsList);
             }

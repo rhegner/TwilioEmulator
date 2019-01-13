@@ -72,19 +72,19 @@ namespace TwilioMemoryRepositories
                 if (endTimeAfterFilter.HasValue)
                     query = query.Where(c => c.EndTime.HasValue && c.EndTime.Value >= endTimeAfterFilter.Value.Date);
 
-                query = query.OrderBy(c => c.StartTime);
+                query = query.OrderByDescending(c => c.DateCreated);
 
+                List<Call> items = null;
                 if (page == 0 && string.IsNullOrEmpty(pageToken))
-                    query = query.Take(pageSize);
+                    items = query.Take(pageSize).ToList();
                 else if (page == 0 && !string.IsNullOrEmpty(pageToken))
-                    query = query.TakeWhile(c => c.Sid != pageToken).TakeLast(pageSize);
+                    items = query.TakeWhile(c => c.Sid != pageToken).TakeLast(pageSize).ToList();
                 else if (page > 0 && !string.IsNullOrEmpty(pageToken))
-                    query = query.SkipWhile(c => c.Sid != pageToken).Skip(1).Take(pageSize);
+                    items = query.SkipWhile(c => c.Sid != pageToken).Skip(1).Take(pageSize).ToList();
                 else
                     throw new Exception($"Invalid paging with page={page}, pageSize={pageSize}, pageToken={pageToken}");
 
-                var items = query.ToList();
-                var hasMore = query.Take(1) != null;
+                var hasMore = items.Count > 0 && items.Last() != query.Last();
                 var callsList = new PageList<Call>(items, hasMore);
                 return Task.FromResult(callsList);
             }

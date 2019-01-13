@@ -22,7 +22,7 @@ namespace TwilioMemoryRepositories
 
         public Task<List<ActivityLog>> GetActivityLogsForResource(string sid)
         {
-            return Task.FromResult(Logs.Values.Where(al => al.Sid == sid).OrderBy(ac => ac.Timestamp).ToList());
+            return Task.FromResult(Logs.Values.Where(al => al.Sid == sid).OrderByDescending(ac => ac.Timestamp).ToList());
         }
 
         public Task Clear()

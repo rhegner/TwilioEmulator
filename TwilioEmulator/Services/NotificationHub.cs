@@ -47,14 +47,17 @@ namespace TwilioEmulator.Services
         }
 
         private async void TwilioEngine_CudOperation<T>(object sender, ResourceCudOperationEventArgs<T> e)
-            where T: IResource
+            where T: class, IResource
         {
             try
             {
                 using (var scope = ServiceScopeFactory.CreateScope())
                 {
                     var hubContext = scope.ServiceProvider.GetRequiredService<IHubContext<ResourceCudNotificationHub<T>, IResourceCudNotificationClient<T>>>();
-                    await hubContext.Clients.Groups("*", e.Resource.GetTopLevelSid()).ResourceCudOperation(e.Resource, e.Operation);
+                    if (e.Resource == null)
+                        await hubContext.Clients.All.ResourceCudOperation(null, e.Operation);
+                    else
+                        await hubContext.Clients.Groups("*", e.Resource.GetTopLevelSid()).ResourceCudOperation(e.Resource, e.Operation);
                 }
             }
             catch (Exception ex)
