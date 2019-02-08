@@ -1,5 +1,5 @@
 import { Component, OnInit, Input } from '@angular/core';
-import { CallResourceDataSource } from 'src/app/data-sources/CallResourceDataSource';
+import { CallsDataSource } from 'src/app/data-sources/CallsDataSource';
 
 @Component({
   selector: 'app-calls-table',
@@ -8,7 +8,7 @@ import { CallResourceDataSource } from 'src/app/data-sources/CallResourceDataSou
 })
 export class CallsTableComponent {
 
-  @Input() dataSource: CallResourceDataSource;
+  @Input() dataSource: CallsDataSource;
 
   callColumns = [ 'direction', 'sid', 'from', 'to', 'status' ];
 

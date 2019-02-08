@@ -1,7 +1,6 @@
 import { DataSource } from '@angular/cdk/table';
 import { ApiCall } from '../models/ApiCall';
 import { BehaviorSubject, Observable } from 'rxjs';
-import { CallResourcesService } from '../backend-services/call-resources.service';
 import { ApiCallsHubService } from '../backend-services/api-calls-hub.service';
 
 export class ApiCallDataSource extends DataSource<ApiCall> {
@@ -10,7 +9,7 @@ export class ApiCallDataSource extends DataSource<ApiCall> {
 
   public callSid: string;
 
-  constructor(private callResourcesService: CallResourcesService,
+  constructor(/* private callResourcesService: CallResourcesService, */
     private apiCallsHub: ApiCallsHubService) {
     super();
   }
@@ -31,12 +30,14 @@ export class ApiCallDataSource extends DataSource<ApiCall> {
   }
 
   public async refresh() {
+    /*
     if (this.callSid) {
       const apiCalls = await this.callResourcesService.getApiCalls(this.callSid);
       this.data.next(apiCalls);
     } else {
       this.data.next([]);
     }
+    */
   }
 
 }

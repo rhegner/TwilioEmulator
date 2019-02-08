@@ -1,5 +1,5 @@
 import { Component, Input } from '@angular/core';
-import { ConferenceResourceDataSource } from 'src/app/data-sources/ConferenceResourceDataSource';
+import { ConferencesDataSource } from 'src/app/data-sources/ConferencesDataSource';
 
 @Component({
   selector: 'app-conferences-table',
@@ -8,7 +8,7 @@ import { ConferenceResourceDataSource } from 'src/app/data-sources/ConferenceRes
 })
 export class ConferencesTableComponent {
 
-  @Input() dataSource: ConferenceResourceDataSource;
+  @Input() dataSource: ConferencesDataSource;
 
   conferenceColumns = [ 'sid', 'friendlyName', 'status', 'participants' ];
 

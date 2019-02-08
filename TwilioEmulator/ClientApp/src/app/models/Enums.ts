@@ -4,6 +4,13 @@ export enum ApiCallDirection {
 }
 
 export enum ApiCallType {
-    IncomingCallCallback = 0,
-    CallResourceApi = 1
+  IncomingCallCallback = 0,
+  CallResourceApi = 1
+}
+
+export enum ResourceCudOperation {
+  Reset = 0,
+  Create = 1,
+  Update = 2,
+  Delete = 3,
 }

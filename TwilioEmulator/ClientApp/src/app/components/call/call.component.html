@@ -4,7 +4,7 @@
     <table class="key-value-table">
       <tr>
         <th>Account Sid</th>
-        <td>{{call?.accountSid}}</td>
+        <td>{{call?.account_sid}}</td>
       </tr>
       <tr>
         <th>Annotation</th>
@@ -12,23 +12,23 @@
       </tr>
       <tr>
         <th>Answered By</th>
-        <td>{{call?.answeredBy}}</td>
+        <td>{{call?.answered_by}}</td>
       </tr>
       <tr>
         <th>Api Version</th>
-        <td>{{call?.apiVersion}}</td>
+        <td>{{call?.api_version}}</td>
       </tr>
       <tr>
         <th>Caller Name</th>
-        <td>{{call?.callerName}}</td>
+        <td>{{call?.caller_name}}</td>
       </tr>
       <tr>
         <th>Date Created</th>
-        <td>{{call?.dateCreated | date:'long'}}</td>
+        <td>{{call?.date_created | date:'long'}}</td>
       </tr>
       <tr>
         <th>Date Updated</th>
-        <td>{{call?.dateUpdated | date:'long'}}</td>
+        <td>{{call?.date_updated | date:'long'}}</td>
       </tr>
       <tr>
         <th>Direction</th>
@@ -40,31 +40,31 @@
       </tr>
       <tr>
         <th>End Time</th>
-        <td>{{call?.endTime}}</td>
+        <td>{{call?.end_time}}</td>
       </tr>
       <tr>
         <th>Forwarded From</th>
-        <td>{{call?.forwardedFrom}}</td>
+        <td>{{call?.forwarded_from}}</td>
       </tr>
       <tr>
         <th>From</th>
-        <td>{{call?.fromFormatted}} <div *ngIf="call?.from !== call?.fromFormatted">({{call?.from}})</div></td>
+        <td>{{call?.from_formatted}} <div *ngIf="call?.from !== call?.from_formatted">({{call?.from}})</div></td>
       </tr>
       <tr>
         <th>Group Sid</th>
-        <td>{{call?.groupSid}}</td>
+        <td>{{call?.group_sid}}</td>
       </tr>
       <tr>
         <th>Parent Call Sid</th>
-        <td>{{call?.parentCallSid}}</td>
+        <td>{{call?.parent_call_sid}}</td>
       </tr>
       <tr>
         <th>Phone Number Sid</th>
-        <td>{{call?.phoneNumberSid}}</td>
+        <td>{{call?.phone_number_sid}}</td>
       </tr>
       <tr>
         <th>Price</th>
-        <td>{{call?.price | number:'1.2'}} {{call?.priceUnit}}</td>
+        <td>{{call?.price | number:'1.2'}} {{call?.price_unit}}</td>
       </tr>
       <tr>
         <th>Sid</th>
@@ -72,7 +72,7 @@
       </tr>
       <tr>
         <th>Start Time</th>
-        <td>{{call?.startTime}}</td>
+        <td>{{call?.start_time}}</td>
       </tr>
       <tr>
         <th>Status</th>
@@ -80,7 +80,7 @@
       </tr>
       <tr>
         <th>To</th>
-        <td>{{call?.toFormatted}} <div *ngIf="call?.to !== call?.toFormatted">({{call?.to}})</div></td>
+        <td>{{call?.to_formatted}} <div *ngIf="call?.to !== call?.to_formatted">({{call?.to}})</div></td>
       </tr>
       <tr>
         <th>Uri</th>
